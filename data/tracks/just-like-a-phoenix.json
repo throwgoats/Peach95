@@ -2,8 +2,8 @@
   "id": "just-like-a-phoenix",
   "filePath": "tracks/Just Like A Phoenix.mp3",
   "title": "Just Like A Phoenix",
-  "artist": "Unknown Artist",
-  "duration": 256,
+  "artist": "Cass Blackwood",
+  "duration": 179,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "D",
+    "category": "A",
     "energy": 4,
     "playCount": 0,
     "lastPlayed": null,

@@ -2,8 +2,8 @@
   "id": "run-the-show",
   "filePath": "tracks/Run the Show.mp3",
   "title": "Run the Show",
-  "artist": "Unknown Artist",
-  "duration": 239,
+  "artist": "Damson",
+  "duration": 252,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "C",
+    "category": "A",
     "energy": 2,
     "playCount": 0,
     "lastPlayed": null,

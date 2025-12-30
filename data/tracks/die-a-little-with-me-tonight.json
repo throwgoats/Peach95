@@ -1,9 +1,9 @@
 {
   "id": "die-a-little-with-me-tonight",
   "filePath": "tracks/Die A Little With Me Tonight.mp3",
-  "title": "Die A Little With Me Tonight",
-  "artist": "Unknown Artist",
-  "duration": 236,
+  "title": "Die A Little With Me",
+  "artist": "Phil Faders",
+  "duration": 158,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "C",
+    "category": "A",
     "energy": 3,
     "playCount": 0,
     "lastPlayed": null,

@@ -2,8 +2,8 @@
   "id": "try-it-on-for-size",
   "filePath": "tracks/Try It On for Size.mp3",
   "title": "Try It On for Size",
-  "artist": "Unknown Artist",
-  "duration": 250,
+  "artist": "Rob Steele",
+  "duration": 176,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "B",
+    "category": "A",
     "energy": 5,
     "playCount": 0,
     "lastPlayed": null,

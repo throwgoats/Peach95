@@ -2,8 +2,8 @@
   "id": "bad-boy-sermon",
   "filePath": "tracks/Bad Boy Sermon.mp3",
   "title": "Bad Boy Sermon",
-  "artist": "Unknown Artist",
-  "duration": 217,
+  "artist": "Magenta Six",
+  "duration": 165,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "A",
+    "category": "B",
     "energy": 1,
     "playCount": 0,
     "lastPlayed": null,

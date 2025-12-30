@@ -2,8 +2,8 @@
   "id": "third-place",
   "filePath": "tracks/Third Place.mp3",
   "title": "Third Place",
-  "artist": "Unknown Artist",
-  "duration": 293,
+  "artist": "Rob Steele",
+  "duration": 204,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "A",
+    "category": "B",
     "energy": 4,
     "playCount": 0,
     "lastPlayed": null,

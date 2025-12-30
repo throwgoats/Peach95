@@ -2,8 +2,8 @@
   "id": "so-much-to-see",
   "filePath": "tracks/So Much To See.mp3",
   "title": "So Much To See",
-  "artist": "Unknown Artist",
-  "duration": 227,
+  "artist": "Dry January",
+  "duration": 176,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "D",
+    "category": "B",
     "energy": 3,
     "playCount": 0,
     "lastPlayed": null,

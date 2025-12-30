@@ -2,8 +2,8 @@
   "id": "what-have-i-done",
   "filePath": "tracks/What Have I Done.mp3",
   "title": "What Have I Done",
-  "artist": "Unknown Artist",
-  "duration": 332,
+  "artist": "Rob Steele",
+  "duration": 230,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
@@ -13,7 +13,7 @@
     "coldOut": false
   },
   "rotation": {
-    "category": "C",
+    "category": "A",
     "energy": 1,
     "playCount": 0,
     "lastPlayed": null,
