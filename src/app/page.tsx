@@ -1,18 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import { PlayerControls } from '@/components/player/PlayerControls';
 import { ProgressBar } from '@/components/player/ProgressBar';
 import { VolumeControl } from '@/components/player/VolumeControl';
 import { TrackInfo } from '@/components/player/TrackInfo';
 import { TrackList } from '@/components/library/TrackList';
+import { TrackInfoPanel } from '@/components/library/TrackInfoPanel';
 import { QueuePanel } from '@/components/queue/QueuePanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { DndProvider } from '@/components/providers/DndProvider';
+import type { TrackMetadata } from '@/types/track';
 
 export default function Home() {
   // Enable keyboard shortcuts
   useKeyboardShortcuts();
+
+  // Track selection state
+  const [selectedTrack, setSelectedTrack] = useState<TrackMetadata | null>(null);
 
   return (
     <DndProvider>
@@ -53,13 +59,23 @@ export default function Home() {
             </div>
 
             {/* Track Library - Takes 1 column */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
+              {/* Track Info Panel */}
+              <TrackInfoPanel
+                track={selectedTrack}
+                onClose={() => setSelectedTrack(null)}
+              />
+
+              {/* Track Library */}
               <Card>
                 <CardHeader>
                   <CardTitle>Track Library</CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-[600px] overflow-y-auto">
-                  <TrackList />
+                  <TrackList
+                    onTrackSelect={setSelectedTrack}
+                    selectedTrack={selectedTrack}
+                  />
                 </CardContent>
               </Card>
             </div>

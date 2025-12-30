@@ -10,6 +10,7 @@ import { useDraggable } from '@dnd-kit/core';
 interface TrackCardProps {
   track: TrackMetadata;
   onClick: () => void;
+  isSelected?: boolean;
 }
 
 const categoryColors = {
@@ -19,7 +20,7 @@ const categoryColors = {
   D: 'bg-yellow-500',
 };
 
-export function TrackCard({ track, onClick }: TrackCardProps) {
+export function TrackCard({ track, onClick, isSelected = false }: TrackCardProps) {
   const currentTrack = usePlayerStore((state) => state.currentTrack);
   const isCurrentTrack = currentTrack?.id === track.id;
 
@@ -45,7 +46,9 @@ export function TrackCard({ track, onClick }: TrackCardProps) {
       ref={setNodeRef}
       className={`cursor-pointer hover:shadow-md transition-shadow ${
         isCurrentTrack ? 'ring-2 ring-primary bg-accent' : ''
-      } ${isDragging ? 'opacity-0' : ''}`}
+      } ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950' : ''} ${
+        isDragging ? 'opacity-0' : ''
+      }`}
       onClick={handleClick}
       {...attributes}
       {...listeners}

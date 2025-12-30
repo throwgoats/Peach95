@@ -3,23 +3,27 @@
 import { useEffect } from 'react';
 import { TrackCard } from './TrackCard';
 import { useLibraryStore } from '@/stores/libraryStore';
-import { usePlayerStore } from '@/stores/playerStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import type { TrackMetadata } from '@/types/track';
 
-export function TrackList() {
+interface TrackListProps {
+  onTrackSelect: (track: TrackMetadata) => void;
+  selectedTrack: TrackMetadata | null;
+}
+
+export function TrackList({ onTrackSelect, selectedTrack }: TrackListProps) {
   const tracks = useLibraryStore((state) => state.tracks);
   const loading = useLibraryStore((state) => state.loading);
   const error = useLibraryStore((state) => state.error);
   const loadTracks = useLibraryStore((state) => state.loadTracks);
-  const loadTrack = usePlayerStore((state) => state.loadTrack);
 
   useEffect(() => {
     loadTracks();
   }, [loadTracks]);
 
-  const handleTrackClick = (track: any) => {
-    loadTrack(track);
+  const handleTrackClick = (track: TrackMetadata) => {
+    onTrackSelect(track);
   };
 
   if (loading) {
@@ -70,6 +74,7 @@ export function TrackList() {
           key={track.id}
           track={track}
           onClick={() => handleTrackClick(track)}
+          isSelected={selectedTrack?.id === track.id}
         />
       ))}
     </div>
