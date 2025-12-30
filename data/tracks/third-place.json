@@ -1,0 +1,26 @@
+{
+  "id": "third-place",
+  "filePath": "tracks/Third Place.mp3",
+  "title": "Third Place",
+  "artist": "Unknown Artist",
+  "duration": 293,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 8,
+    "outro": 12,
+    "coldOpen": false,
+    "coldOut": false
+  },
+  "rotation": {
+    "category": "A",
+    "energy": 4,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2025-12-30T03:43:53.277Z"
+  },
+  "explicit": false,
+  "createdAt": "2025-12-30T03:43:53.277Z",
+  "updatedAt": "2025-12-30T03:43:53.277Z",
+  "version": 1
+}

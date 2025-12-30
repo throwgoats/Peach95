@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/shawn/Projects/Peach95 log --oneline -5)",
+      "Bash(git -C /Users/shawn/Projects/Peach95 remote -v)",
+      "Bash(ls:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(ln:*)",
+      "Bash(npm run generate-metadata:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

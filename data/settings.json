@@ -1,0 +1,14 @@
+{
+  "player": {
+    "defaultVolume": 0.8,
+    "crossfadeDuration": 5,
+    "enableCrossfade": false,
+    "enableAutoAdvance": false
+  },
+  "library": {
+    "defaultView": "list",
+    "sortBy": "title",
+    "sortOrder": "asc"
+  },
+  "version": 1
+}

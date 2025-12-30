@@ -1,0 +1,26 @@
+{
+  "id": "die-a-little-with-me-tonight",
+  "filePath": "tracks/Die A Little With Me Tonight.mp3",
+  "title": "Die A Little With Me Tonight",
+  "artist": "Unknown Artist",
+  "duration": 236,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 8,
+    "outro": 12,
+    "coldOpen": false,
+    "coldOut": false
+  },
+  "rotation": {
+    "category": "C",
+    "energy": 3,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2025-12-30T03:43:53.277Z"
+  },
+  "explicit": false,
+  "createdAt": "2025-12-30T03:43:53.277Z",
+  "updatedAt": "2025-12-30T03:43:53.277Z",
+  "version": 1
+}
