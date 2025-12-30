@@ -116,6 +116,29 @@ npm run build
 npm start
 ```
 
+## Testing
+
+The project includes a comprehensive test suite using Jest and React Testing Library.
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+**Test Coverage:**
+- ✅ Utility functions (formatDuration, createSlug, etc.)
+- ✅ PlayerController audio engine
+- ✅ Zod schema validation
+- ✅ React components (TrackInfo, etc.)
+
+Current coverage: 35 passing tests across core functionality
+
 ## License
 
 GNU General Public License v3.0
