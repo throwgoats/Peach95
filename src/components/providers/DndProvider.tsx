@@ -68,14 +68,26 @@ export function DndProvider({ children }: DndProviderProps) {
       onDragCancel={handleDragCancel}
     >
       {children}
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeTrack ? (
-          <Card className="w-full opacity-80 shadow-lg">
+          <Card className="w-[400px] opacity-90 shadow-lg ring-2 ring-primary">
             <CardContent className="p-4">
-              <h3 className="font-semibold truncate">{activeTrack.title}</h3>
-              <p className="text-sm text-muted-foreground truncate">
-                {activeTrack.artist}
-              </p>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded flex items-center justify-center text-white flex-shrink-0 ${
+                  activeTrack.rotation.category === 'A' ? 'bg-red-500' :
+                  activeTrack.rotation.category === 'B' ? 'bg-blue-500' :
+                  activeTrack.rotation.category === 'C' ? 'bg-green-500' :
+                  'bg-yellow-500'
+                }`}>
+                  <span className="font-bold">{activeTrack.rotation.category}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold truncate">{activeTrack.title}</h3>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {activeTrack.artist}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ) : null}

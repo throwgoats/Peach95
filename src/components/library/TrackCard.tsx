@@ -31,12 +31,6 @@ export function TrackCard({ track, onClick }: TrackCardProps) {
       },
     });
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
-
   const handleClick = (e: React.MouseEvent) => {
     // Prevent click during drag
     if (isDragging) {
@@ -49,10 +43,9 @@ export function TrackCard({ track, onClick }: TrackCardProps) {
   return (
     <Card
       ref={setNodeRef}
-      style={style}
-      className={`cursor-pointer transition-all hover:shadow-md ${
+      className={`cursor-pointer hover:shadow-md transition-shadow ${
         isCurrentTrack ? 'ring-2 ring-primary bg-accent' : ''
-      } ${isDragging ? 'opacity-20' : ''}`}
+      } ${isDragging ? 'opacity-0' : ''}`}
       onClick={handleClick}
       {...attributes}
       {...listeners}
