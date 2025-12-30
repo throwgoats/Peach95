@@ -32,7 +32,7 @@ export function TrackInfoPanel({ track, onClose }: TrackInfoPanelProps) {
 
   if (!track) {
     return (
-      <Card className="h-[400px]">
+      <Card className="h-full">
         <CardContent className="p-12 h-full flex items-center justify-center">
           <div className="flex flex-col items-center justify-center text-center">
             <Info className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
@@ -61,7 +61,7 @@ export function TrackInfoPanel({ track, onClose }: TrackInfoPanelProps) {
   };
 
   return (
-    <Card className="h-[400px] flex flex-col">
+    <Card className="h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">

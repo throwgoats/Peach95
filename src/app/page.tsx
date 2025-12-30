@@ -34,9 +34,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:grid-rows-[auto_auto] lg:auto-rows-auto">
             {/* Player Section - Takes 2 columns on large screens */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 lg:row-span-1 space-y-6">
               {/* Now Playing */}
               <TrackInfo />
 
@@ -53,21 +53,24 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Queue */}
-              <QueuePanel />
             </div>
 
-            {/* Track Library - Takes 1 column */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Track Info Panel */}
+            {/* Track Info Panel - Matches height of player section */}
+            <div className="lg:col-span-1 lg:row-span-1">
               <TrackInfoPanel
                 track={selectedTrack}
                 onClose={() => setSelectedTrack(null)}
               />
+            </div>
 
-              {/* Track Library */}
-              <Card>
+            {/* Queue - Second row, takes 2 columns */}
+            <div className="lg:col-span-2 lg:row-span-1">
+              <QueuePanel />
+            </div>
+
+            {/* Track Library - Second row, takes 1 column */}
+            <div className="lg:col-span-1 lg:row-span-1">
+              <Card className="h-full">
                 <CardHeader>
                   <CardTitle>Track Library</CardTitle>
                 </CardHeader>
