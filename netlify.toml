@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Include data directory in deployment
+[build.environment]
+  NODE_VERSION = "18"
+
+# Make sure public assets are accessible
+[[headers]]
+  for = "/media/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
