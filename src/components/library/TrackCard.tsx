@@ -5,6 +5,7 @@ import type { TrackMetadata } from '@/types/track';
 import { formatDuration } from '@/lib/utils';
 import { usePlayerStore } from '@/stores/playerStore';
 import { Music } from 'lucide-react';
+import { useDraggable } from '@dnd-kit/core';
 
 interface TrackCardProps {
   track: TrackMetadata;
@@ -22,12 +23,39 @@ export function TrackCard({ track, onClick }: TrackCardProps) {
   const currentTrack = usePlayerStore((state) => state.currentTrack);
   const isCurrentTrack = currentTrack?.id === track.id;
 
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: `library-${track.id}`,
+      data: {
+        track,
+      },
+    });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent click during drag
+    if (isDragging) {
+      e.preventDefault();
+      return;
+    }
+    onClick();
+  };
+
   return (
     <Card
+      ref={setNodeRef}
+      style={style}
       className={`cursor-pointer transition-all hover:shadow-md ${
         isCurrentTrack ? 'ring-2 ring-primary bg-accent' : ''
-      }`}
-      onClick={onClick}
+      } ${isDragging ? 'opacity-20' : ''}`}
+      onClick={handleClick}
+      {...attributes}
+      {...listeners}
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-3">

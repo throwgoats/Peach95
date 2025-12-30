@@ -1,6 +1,6 @@
 'use client';
 
-import { Play, Pause, Square } from 'lucide-react';
+import { Play, Pause, Square, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayerStore } from '@/stores/playerStore';
 
@@ -9,10 +9,13 @@ export function PlayerControls() {
   const play = usePlayerStore((state) => state.play);
   const pause = usePlayerStore((state) => state.pause);
   const stop = usePlayerStore((state) => state.stop);
+  const playNext = usePlayerStore((state) => state.playNext);
+  const queue = usePlayerStore((state) => state.queue);
 
   const isPlaying = playbackState === 'playing';
   const isLoading = playbackState === 'loading';
   const hasTrack = usePlayerStore((state) => state.currentTrack !== null);
+  const hasQueue = queue.length > 0;
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -45,6 +48,17 @@ export function PlayerControls() {
         className="w-16 h-16 rounded-full"
       >
         <Square className="h-6 w-6" />
+      </Button>
+
+      <Button
+        size="lg"
+        variant="outline"
+        onClick={playNext}
+        disabled={!hasQueue || isLoading}
+        className="w-16 h-16 rounded-full"
+        title="Skip to next track in queue"
+      >
+        <SkipForward className="h-6 w-6" />
       </Button>
     </div>
   );

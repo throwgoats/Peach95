@@ -16,6 +16,14 @@ interface PlayerStore extends PlayerState {
   toggleMute: () => void;
   setPosition: (position: number) => void;
   setPlaybackState: (state: PlaybackState) => void;
+
+  // Queue actions
+  addToQueue: (track: TrackMetadata, position?: number) => void;
+  removeFromQueue: (index: number) => void;
+  reorderQueue: (fromIndex: number, toIndex: number) => void;
+  clearQueue: () => void;
+  playFromQueue: (index: number) => void;
+  playNext: () => void;
 }
 
 export const usePlayerStore = create<PlayerStore>()(
@@ -46,7 +54,14 @@ export const usePlayerStore = create<PlayerStore>()(
 
       player.on(PlayerEvent.TRACK_ENDED, () => {
         set({ playbackState: 'stopped', position: 0 });
-        // TODO: In Phase 2, advance queue here
+
+        // Auto-advance to next track in queue
+        const { queue } = get();
+        if (queue.length > 0) {
+          setTimeout(() => {
+            get().playNext();
+          }, 100);
+        }
       });
 
       player.on(PlayerEvent.POSITION_UPDATE, (position: number) => {
@@ -116,6 +131,64 @@ export const usePlayerStore = create<PlayerStore>()(
         setPlaybackState: (playbackState: PlaybackState) => {
           set({ playbackState });
         },
+
+        // Queue actions
+        addToQueue: (track: TrackMetadata, position?: number) => {
+          const { queue } = get();
+          const newQueue = [...queue];
+
+          if (position !== undefined && position >= 0 && position <= queue.length) {
+            newQueue.splice(position, 0, track);
+          } else {
+            newQueue.push(track);
+          }
+
+          set({ queue: newQueue });
+        },
+
+        removeFromQueue: (index: number) => {
+          const { queue } = get();
+          const newQueue = queue.filter((_, i) => i !== index);
+          set({ queue: newQueue });
+        },
+
+        reorderQueue: (fromIndex: number, toIndex: number) => {
+          const { queue } = get();
+          const newQueue = [...queue];
+          const [movedItem] = newQueue.splice(fromIndex, 1);
+          newQueue.splice(toIndex, 0, movedItem);
+          set({ queue: newQueue });
+        },
+
+        clearQueue: () => {
+          set({ queue: [] });
+        },
+
+        playFromQueue: async (index: number) => {
+          const { queue, loadTrack, play } = get();
+          if (index >= 0 && index < queue.length) {
+            const track = queue[index];
+            // Remove from queue
+            const newQueue = queue.filter((_, i) => i !== index);
+            set({ queue: newQueue });
+            // Load and play
+            await loadTrack(track);
+            play();
+          }
+        },
+
+        playNext: async () => {
+          const { queue, loadTrack, play } = get();
+
+          if (queue.length > 0) {
+            const nextTrack = queue[0];
+            // Remove first track from queue
+            set({ queue: queue.slice(1) });
+            // Load and play
+            await loadTrack(nextTrack);
+            play();
+          }
+        },
       };
     },
     {
@@ -123,6 +196,7 @@ export const usePlayerStore = create<PlayerStore>()(
       partialize: (state) => ({
         volume: state.volume,
         muted: state.muted,
+        // Explicitly exclude queue from persistence
       }),
     }
   )

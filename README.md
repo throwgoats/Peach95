@@ -4,14 +4,25 @@
 
 A modern, web-based radio automation application built with Next.js, featuring a cart-based player system designed for on-air broadcasting.
 
-## Features (MVP v0.1.0)
+## Features
 
+### Phase 1 - MVP (v0.1.0) ✅
 - 🎵 Audio playback with play/pause/stop controls
 - 📊 Visual progress bar with seek functionality
 - 🔊 Volume control with mute
 - 📚 Track library with metadata display
 - ⌨️ Keyboard shortcuts (Space, S, ↑/↓)
 - 🎨 Modern, responsive UI with Tailwind CSS
+
+### Phase 2 - Queue System (v0.2.0) ✅
+- 🎯 Visual queue panel with drag-and-drop
+- ⏭️ Skip button to advance to next track
+- 🔄 Auto-advance when track ends
+- 📝 Position badges ("Next" and numbers)
+- ⏱️ Total queue duration display
+- 🗑️ Clear queue and remove individual tracks
+- ↕️ Reorder tracks within queue
+- 🎭 Drag tracks from library to queue
 
 ## Tech Stack
 
@@ -54,6 +65,8 @@ src/
 ├── components/       # React components
 │   ├── player/       # Player controls, progress, volume
 │   ├── library/      # Track list components
+│   ├── queue/        # Queue panel and items
+│   ├── providers/    # DndProvider for drag-and-drop
 │   └── ui/           # shadcn/ui base components
 ├── lib/              # Core logic
 │   ├── audio/        # PlayerController (Howler wrapper)
@@ -87,11 +100,6 @@ This scans `/media/tracks/` and creates JSON files in `/data/tracks/` with defau
 - Energy levels (1-5)
 
 ## Future Roadmap
-
-### Phase 2: Queue System
-- Visual cart queue
-- Drag-and-drop reordering
-- Auto-advance to next track
 
 ### Phase 3: Crossfading
 - Overlap based on intro/outro metadata
