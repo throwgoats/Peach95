@@ -51,6 +51,9 @@ describe('TrackInfo', () => {
       const state = {
         currentTrack: mockTrack,
         playbackState: 'stopped' as const,
+        queueItems: [],
+        position: 0,
+        volume: 50,
       };
       return selector(state);
     });
@@ -59,7 +62,7 @@ describe('TrackInfo', () => {
 
     expect(screen.getByText('Test Song')).toBeInTheDocument();
     expect(screen.getByText('Test Artist')).toBeInTheDocument();
-    expect(screen.getByText('Album: Test Album')).toBeInTheDocument();
+    expect(screen.getByText('Test Album')).toBeInTheDocument();
   });
 
   it('displays category badge', () => {
@@ -67,6 +70,9 @@ describe('TrackInfo', () => {
       const state = {
         currentTrack: mockTrack,
         playbackState: 'stopped' as const,
+        queueItems: [],
+        position: 0,
+        volume: 50,
       };
       return selector(state);
     });
@@ -81,13 +87,18 @@ describe('TrackInfo', () => {
       const state = {
         currentTrack: mockTrack,
         playbackState: 'playing' as const,
+        queueItems: [],
+        position: 0,
+        volume: 50,
       };
       return selector(state);
     });
 
     render(<TrackInfo />);
 
-    expect(screen.getByText('Playing')).toBeInTheDocument();
+    // When playing, the green dot should be pulsing
+    const playingIndicator = screen.getByText('Now Playing');
+    expect(playingIndicator).toBeInTheDocument();
   });
 
   it('shows energy level', () => {
@@ -95,6 +106,9 @@ describe('TrackInfo', () => {
       const state = {
         currentTrack: mockTrack,
         playbackState: 'stopped' as const,
+        queueItems: [],
+        position: 0,
+        volume: 50,
       };
       return selector(state);
     });
@@ -102,6 +116,6 @@ describe('TrackInfo', () => {
     render(<TrackInfo />);
 
     // Energy 4 should show 4 lightning bolts
-    expect(screen.getByText(/Energy:/)).toBeInTheDocument();
+    expect(screen.getByText('⚡⚡⚡⚡')).toBeInTheDocument();
   });
 });

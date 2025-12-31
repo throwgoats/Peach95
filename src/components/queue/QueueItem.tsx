@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { QueueItem as QueueItemType } from '@/types/queue';
+import type { TrackMetadata } from '@/types/track';
 import { formatDuration } from '@/lib/utils';
 import { usePlayerStore } from '@/stores/playerStore';
 import { GripVertical, X } from 'lucide-react';
@@ -16,9 +17,10 @@ interface QueueItemProps {
   queueItem: QueueItemType;
   index: number;
   position: number;
+  previousTrack?: TrackMetadata;
 }
 
-export function QueueItem({ queueItem, index, position }: QueueItemProps) {
+export function QueueItem({ queueItem, index, position, previousTrack }: QueueItemProps) {
   const { track, voSegment } = queueItem;
   const removeFromQueue = usePlayerStore((state) => state.removeFromQueue);
   const playbackState = usePlayerStore(
@@ -50,88 +52,106 @@ export function QueueItem({ queueItem, index, position }: QueueItemProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Check if this item has a VO that references the previous track
+  const hasBacksellReference = voSegment && previousTrack && voSegment.transcript && (
+    voSegment.transcript.toLowerCase().includes('that was') ||
+    voSegment.transcript.toLowerCase().includes('just heard') ||
+    voSegment.transcript.toLowerCase().includes(previousTrack.artist.toLowerCase()) ||
+    voSegment.transcript.toLowerCase().includes(previousTrack.title.toLowerCase())
+  );
+
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className="relative overflow-hidden transition-all hover:shadow-md"
-    >
-      {/* Background Progress Bar */}
-      {isCurrentlyPlaying && (
-        <div
-          className="absolute inset-0 bg-primary/20 transition-all duration-100 ease-linear"
-          style={{ width: `${progress}%` }}
-        />
+    <div className="relative">
+      {/* Visual connection line to previous track when backselling */}
+      {hasBacksellReference && (
+        <div className="absolute -top-2 left-8 w-px h-2 bg-blue-500/50 dark:bg-blue-400/50" />
       )}
 
-      <CardContent className="relative p-3">
-        <div className="flex items-center gap-2">
-          {/* Drag Handle */}
-          <button
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground p-1"
-          >
-            <GripVertical className="h-4 w-4" />
-          </button>
-
-          {/* Position Badge with VO indicator */}
-          <PositionBadge
-            position={position}
-            hasVO={!!voSegment}
-            isPlaying={isCurrentlyPlaying}
-          />
-
-          {/* Track Info */}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm truncate">{track.title}</h4>
-            <p className="text-xs text-muted-foreground truncate">
-              {track.artist}
-            </p>
-          </div>
-
-          {/* Duration / Current Time */}
-          <div className="text-xs text-muted-foreground flex-shrink-0">
-            {isCurrentlyPlaying && playbackState ? (
-              <>
-                {formatDuration(playbackState.primaryPosition)} /{' '}
-                {formatDuration(track.duration)}
-              </>
-            ) : (
-              formatDuration(track.duration)
-            )}
-          </div>
-
-          {/* Playback Controls (Top 2 only) */}
-          {isTopTwo && (
-            <QueueItemControls
-              position={index}
-              isPlaying={isCurrentlyPlaying}
-              isPaused={isPaused}
-            />
-          )}
-
-          {/* Remove Button */}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => removeFromQueue(index)}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive flex-shrink-0"
-            title="Remove from queue"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-
-        {/* VO Info Bar */}
-        {voSegment && (
-          <VOInfoBar
-            segment={voSegment}
-            track={track}
-            isActive={playbackState?.secondaryPosition !== undefined}
+      <Card
+        ref={setNodeRef}
+        style={style}
+        className={`relative overflow-hidden transition-all hover:shadow-md ${
+          hasBacksellReference ? 'border-l-2 border-l-blue-500/30 dark:border-l-blue-400/30' : ''
+        }`}
+      >
+        {/* Background Progress Bar */}
+        {isCurrentlyPlaying && (
+          <div
+            className="absolute inset-0 bg-primary/20 transition-all duration-100 ease-linear"
+            style={{ width: `${progress}%` }}
           />
         )}
-      </CardContent>
-    </Card>
+
+        <CardContent className="relative p-3">
+          <div className="flex items-center gap-2">
+            {/* Drag Handle */}
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground p-1"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+
+            {/* Position Badge with VO indicator */}
+            <PositionBadge
+              position={position}
+              hasVO={!!voSegment}
+              isPlaying={isCurrentlyPlaying}
+            />
+
+            {/* Track Info */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-sm truncate">{track.title}</h4>
+              <p className="text-xs text-muted-foreground truncate">
+                {track.artist}
+              </p>
+            </div>
+
+            {/* Duration / Current Time */}
+            <div className="text-xs text-muted-foreground flex-shrink-0">
+              {isCurrentlyPlaying && playbackState ? (
+                <>
+                  {formatDuration(playbackState.primaryPosition)} /{' '}
+                  {formatDuration(track.duration)}
+                </>
+              ) : (
+                formatDuration(track.duration)
+              )}
+            </div>
+
+            {/* Playback Controls (Top 2 only) */}
+            {isTopTwo && (
+              <QueueItemControls
+                position={index}
+                isPlaying={isCurrentlyPlaying}
+                isPaused={isPaused}
+              />
+            )}
+
+            {/* Remove Button */}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => removeFromQueue(index)}
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive flex-shrink-0"
+              title="Remove from queue"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+
+          {/* VO Info Bar */}
+          {voSegment && (
+            <VOInfoBar
+              segment={voSegment}
+              track={track}
+              isActive={playbackState?.secondaryPosition !== undefined}
+              previousTrack={previousTrack}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

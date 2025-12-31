@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { VOGenerationRequest, VOGenerationResponse, VOSegment } from '@/types/vo';
 import { calculateVOStartOffset } from '@/lib/audio/timing';
 import { BREAK_TYPES, selectRandomBreakType, type BreakType } from '@/types/talent';
+import { generateVOScript, estimateScriptDuration } from '@/lib/ai/claude';
+import { generateTTS, getVoiceIdForPersona } from '@/lib/ai/elevenlabs';
 
 /**
- * Mock VO segment generation
+ * VO segment generation with AI
  * POST /api/vo-segments
  */
 export async function POST(request: NextRequest) {
   try {
     const body: VOGenerationRequest = await request.json();
-    const { currentTrack, nextTrack, persona, timeOfDay, breakType, context } = body;
+    const { currentTrack, nextTrack, persona, timeOfDay, breakType, context, energyLevel } = body;
 
     // Validate intro timing
     if (currentTrack.timing.coldOpen) {
@@ -23,15 +25,34 @@ export async function POST(request: NextRequest) {
     // Select break type if not provided
     const selectedBreakType = breakType || selectRandomBreakType();
 
-    // Generate mock VO segment
-    const mockSegment = generateMockVOSegment(
-      currentTrack,
-      nextTrack,
-      persona,
-      timeOfDay,
-      selectedBreakType,
-      context
-    );
+    // Check if AI is enabled (fallback to mock if no API keys)
+    const useAI = process.env.ANTHROPIC_API_KEY && process.env.ELEVENLABS_API_KEY;
+
+    let voSegment: VOSegment;
+
+    if (useAI) {
+      // Generate with AI
+      voSegment = await generateAIVOSegment(
+        currentTrack,
+        nextTrack,
+        persona,
+        timeOfDay,
+        selectedBreakType,
+        energyLevel,
+        context
+      );
+    } else {
+      // Fallback to mock generation
+      console.warn('AI API keys not configured, using mock VO generation');
+      voSegment = generateMockVOSegment(
+        currentTrack,
+        nextTrack,
+        persona,
+        timeOfDay,
+        selectedBreakType,
+        context
+      );
+    }
 
     // Calculate start offset using timing utility
     const calculatedOffset = calculateVOStartOffset(
@@ -59,11 +80,11 @@ export async function POST(request: NextRequest) {
         updatedAt: '',
         version: 1
       },
-      mockSegment
+      voSegment
     );
 
     const response: VOGenerationResponse = {
-      segment: { ...mockSegment, startOffset: calculatedOffset },
+      segment: { ...voSegment, startOffset: calculatedOffset },
       calculatedOffset,
       recommendedIntro: currentTrack.timing.intro
     };
@@ -76,6 +97,57 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Generate VO segment using AI (Claude + ElevenLabs)
+ */
+async function generateAIVOSegment(
+  currentTrack: VOGenerationRequest['currentTrack'],
+  nextTrack: VOGenerationRequest['nextTrack'] | undefined,
+  persona: string,
+  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'overnight',
+  breakType: BreakType,
+  energyLevel: number,
+  context?: VOGenerationRequest['context']
+): Promise<VOSegment> {
+  // Step 1: Generate script with Claude
+  const script = await generateVOScript({
+    currentTrack: {
+      title: currentTrack.title,
+      artist: currentTrack.artist
+    },
+    nextTrack: nextTrack ? {
+      title: nextTrack.title,
+      artist: nextTrack.artist
+    } : undefined,
+    persona,
+    timeOfDay,
+    breakType,
+    energyLevel,
+    context
+  });
+
+  // Step 2: Generate audio with ElevenLabs
+  const voiceId = getVoiceIdForPersona(persona);
+  const { audioDataUrl } = await generateTTS({
+    text: script,
+    voiceId
+  });
+
+  // Step 3: Estimate duration
+  const duration = estimateScriptDuration(script);
+
+  return {
+    id: `vo-${Date.now()}`,
+    fileUrl: audioDataUrl, // Base64 data URL for immediate use
+    duration,
+    startOffset: 0, // Will be calculated by caller
+    transcript: script,
+    generatedAt: new Date().toISOString(),
+    persona,
+    breakType
+  };
 }
 
 /**

@@ -324,10 +324,13 @@ export const usePlayerStore = create<PlayerStore>()(
           // - 'vo': Generate VO segment (current behavior)
           // - 'stinger': Select and attach stinger segment instead
           // - 'none': No transition, just song
+          //
+          // IMPORTANT: Cold open tracks ALWAYS get stingers (never VO)
+          // VO over vocals sounds unprofessional - stinger bridges previous song to cold open
 
-          // Don't generate for cold open
+          // Don't generate VO for cold open (will get stinger instead when clock is implemented)
           if (queueItem.track.timing.coldOpen) {
-            console.log(`Skipping VO generation for cold open track: ${queueItem.track.title}`);
+            console.log(`Skipping VO generation for cold open track: ${queueItem.track.title} (will use stinger)`);
             return;
           }
 

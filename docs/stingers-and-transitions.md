@@ -15,6 +15,7 @@ The **clock/scheduling system** (to be implemented) will determine which transit
 - Programming hour/daypart
 - Special events/holidays
 - Station format requirements
+- **Track characteristics** (cold open tracks ALWAYS get stingers, never VO)
 
 ### Example Clock Rules
 
@@ -33,6 +34,31 @@ const exampleRules = {
   evening: { voFrequency: 40, stingerFrequency: 40 }, // 40% VO, 40% stinger, 20% none
   overnight: { voFrequency: 20, stingerFrequency: 50 }, // 20% VO, 50% stinger, 30% none
 };
+```
+
+### Cold Open Tracks - Special Case
+
+**Rule**: Tracks with `coldOpen: true` **ALWAYS** get a stinger transition, never VO.
+
+**Reasoning**:
+- Cold open tracks start immediately with vocals (no instrumental intro)
+- VO over vocals sounds unprofessional and muddy
+- A stinger bridges the previous song to the cold open perfectly
+- Clock rules are overridden for cold opens
+
+**Implementation**:
+```typescript
+export function determineTransitionType(track: TrackMetadata, ...): TransitionType {
+  // Cold opens ALWAYS get stingers
+  if (track.timing.coldOpen) {
+    return 'stinger';
+  }
+
+  // Normal clock rules for other tracks
+  const daypart = getDaypart(currentTime);
+  const rules = getClockRules(daypart);
+  // ... weighted random selection
+}
 ```
 
 ## Stinger Types

@@ -129,6 +129,7 @@ export function QueuePanel() {
                   queueItem={queueItem}
                   index={index}
                   position={index + 1}
+                  previousTrack={index > 0 ? queueItems[index - 1].track : undefined}
                 />
               ))}
             </div>

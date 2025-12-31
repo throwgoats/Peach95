@@ -10,12 +10,12 @@ export function PlayerControls() {
   const pause = usePlayerStore((state) => state.pause);
   const stop = usePlayerStore((state) => state.stop);
   const playNext = usePlayerStore((state) => state.playNext);
-  const queue = usePlayerStore((state) => state.queue);
+  const queueItems = usePlayerStore((state) => state.queueItems);
 
   const isPlaying = playbackState === 'playing';
   const isLoading = playbackState === 'loading';
   const hasTrack = usePlayerStore((state) => state.currentTrack !== null);
-  const hasQueue = queue.length > 0;
+  const hasQueue = queueItems.length > 0;
 
   const handlePlayPause = () => {
     if (isPlaying) {
