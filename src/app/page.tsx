@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { PlayerControls } from '@/components/player/PlayerControls';
-import { ProgressBar } from '@/components/player/ProgressBar';
-import { VolumeControl } from '@/components/player/VolumeControl';
 import { TrackInfo } from '@/components/player/TrackInfo';
 import { TrackList } from '@/components/library/TrackList';
 import { TrackInfoPanel } from '@/components/library/TrackInfoPanel';
 import { QueuePanel } from '@/components/queue/QueuePanel';
+import { DJSelector } from '@/components/talent/DJSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { DndProvider } from '@/components/providers/DndProvider';
@@ -34,43 +32,21 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:grid-rows-[auto_auto] lg:auto-rows-auto">
-            {/* Player Section - Takes 2 columns on large screens */}
-            <div className="lg:col-span-2 lg:row-span-1 space-y-6">
-              {/* Now Playing */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+            {/* Main Content Column - Player and Queue */}
+            <div className="space-y-6">
               <TrackInfo />
-
-              {/* Player Controls */}
-              <Card>
-                <CardContent className="p-6 space-y-6">
-                  {/* Progress Bar */}
-                  <ProgressBar />
-
-                  {/* Controls Row */}
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <PlayerControls />
-                    <VolumeControl />
-                  </div>
-                </CardContent>
-              </Card>
+              <QueuePanel />
             </div>
 
-            {/* Track Info Panel - Matches height of player section */}
-            <div className="lg:col-span-1 lg:row-span-1">
+            {/* Sidebar Column - DJ, Track Info, Library */}
+            <div className="space-y-6">
+              <DJSelector />
               <TrackInfoPanel
                 track={selectedTrack}
                 onClose={() => setSelectedTrack(null)}
               />
-            </div>
-
-            {/* Queue - Second row, takes 2 columns */}
-            <div className="lg:col-span-2 lg:row-span-1">
-              <QueuePanel />
-            </div>
-
-            {/* Track Library - Second row, takes 1 column */}
-            <div className="lg:col-span-1 lg:row-span-1">
-              <Card className="h-full">
+              <Card>
                 <CardHeader>
                   <CardTitle>Track Library</CardTitle>
                 </CardHeader>

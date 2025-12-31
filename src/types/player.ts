@@ -19,7 +19,13 @@ export enum PlayerEvent {
   TRACK_ENDED = 'track:ended',
   TRACK_ERROR = 'track:error',
   POSITION_UPDATE = 'position:update',
-  VOLUME_CHANGE = 'volume:change'
+  VOLUME_CHANGE = 'volume:change',
+  // Multi-track events
+  VO_LOADED = 'vo:loaded',
+  VO_PLAYING = 'vo:playing',
+  VO_ENDED = 'vo:ended',
+  VO_ERROR = 'vo:error',
+  MULTI_TRACK_POSITION_UPDATE = 'multitrack:position'
 }
 
 export interface PlayerError {

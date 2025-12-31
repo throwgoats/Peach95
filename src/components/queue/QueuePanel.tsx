@@ -22,13 +22,13 @@ import {
 } from '@dnd-kit/sortable';
 
 export function QueuePanel() {
-  const queue = usePlayerStore((state) => state.queue);
+  const queueItems = usePlayerStore((state) => state.queueItems);
   const clearQueue = usePlayerStore((state) => state.clearQueue);
   const reorderQueue = usePlayerStore((state) => state.reorderQueue);
   const addToQueue = usePlayerStore((state) => state.addToQueue);
 
   // Calculate total duration
-  const totalDuration = queue.reduce((sum, track) => sum + track.duration, 0);
+  const totalDuration = queueItems.reduce((sum, item) => sum + item.track.duration, 0);
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -55,11 +55,11 @@ export function QueuePanel() {
 
     // Handle reordering within queue
     if (over && active.id !== over.id) {
-      const oldIndex = queue.findIndex(
-        (_, i) => active.id === queue[i].id + '-' + i
+      const oldIndex = queueItems.findIndex(
+        (_, i) => active.id === queueItems[i].track.id + '-' + i
       );
-      const newIndex = queue.findIndex(
-        (_, i) => over.id === queue[i].id + '-' + i
+      const newIndex = queueItems.findIndex(
+        (_, i) => over.id === queueItems[i].track.id + '-' + i
       );
       if (oldIndex !== -1 && newIndex !== -1) {
         reorderQueue(oldIndex, newIndex);
@@ -68,7 +68,7 @@ export function QueuePanel() {
   };
 
   // Empty state
-  if (queue.length === 0) {
+  if (queueItems.length === 0) {
     return (
       <Card ref={setNodeRef} className={`${isOver ? 'ring-2 ring-primary bg-accent/50' : ''}`}>
         <CardHeader>
@@ -96,7 +96,7 @@ export function QueuePanel() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <ListMusic className="h-5 w-5" />
-            Queue ({queue.length})
+            Queue ({queueItems.length})
           </CardTitle>
           <Button
             variant="ghost"
@@ -119,14 +119,14 @@ export function QueuePanel() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={queue.map((t, i) => t.id + '-' + i)}
+            items={queueItems.map((item, i) => item.track.id + '-' + i)}
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-2">
-              {queue.map((track, index) => (
+              {queueItems.map((queueItem, index) => (
                 <QueueItem
-                  key={track.id + '-' + index}
-                  track={track}
+                  key={queueItem.track.id + '-' + index}
+                  queueItem={queueItem}
                   index={index}
                   position={index + 1}
                 />

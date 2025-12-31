@@ -2,22 +2,38 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { TrackMetadata } from '@/types/track';
+import type { QueueItem as QueueItemType } from '@/types/queue';
 import { formatDuration } from '@/lib/utils';
 import { usePlayerStore } from '@/stores/playerStore';
-import { GripVertical, X, Play } from 'lucide-react';
+import { GripVertical, X } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { QueueItemControls } from './QueueItemControls';
+import { VOInfoBar } from './VOInfoBar';
+import { PositionBadge } from './PositionBadge';
 
 interface QueueItemProps {
-  track: TrackMetadata;
+  queueItem: QueueItemType;
   index: number;
   position: number;
 }
 
-export function QueueItem({ track, index, position }: QueueItemProps) {
+export function QueueItem({ queueItem, index, position }: QueueItemProps) {
+  const { track, voSegment } = queueItem;
   const removeFromQueue = usePlayerStore((state) => state.removeFromQueue);
-  const playFromQueue = usePlayerStore((state) => state.playFromQueue);
+  const playbackState = usePlayerStore(
+    (state) => state.queueItemStates.get(index)
+  );
+
+  const isTopTwo = position <= 2;
+  const isCurrentlyPlaying = playbackState?.isPlaying ?? false;
+  const isPaused = playbackState?.isPaused ?? false;
+
+  // Calculate progress percentage
+  const progress =
+    isCurrentlyPlaying && playbackState
+      ? (playbackState.primaryPosition / track.duration) * 100
+      : 0;
 
   const {
     attributes,
@@ -34,15 +50,21 @@ export function QueueItem({ track, index, position }: QueueItemProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const positionLabel = position === 1 ? 'Next' : position.toString();
-
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      className="transition-all hover:shadow-md"
+      className="relative overflow-hidden transition-all hover:shadow-md"
     >
-      <CardContent className="p-3">
+      {/* Background Progress Bar */}
+      {isCurrentlyPlaying && (
+        <div
+          className="absolute inset-0 bg-primary/20 transition-all duration-100 ease-linear"
+          style={{ width: `${progress}%` }}
+        />
+      )}
+
+      <CardContent className="relative p-3">
         <div className="flex items-center gap-2">
           {/* Drag Handle */}
           <button
@@ -53,18 +75,12 @@ export function QueueItem({ track, index, position }: QueueItemProps) {
             <GripVertical className="h-4 w-4" />
           </button>
 
-          {/* Position Badge */}
-          <div className="flex-shrink-0 w-12 text-center">
-            <span
-              className={`text-xs font-medium px-2 py-1 rounded ${
-                position === 1
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              }`}
-            >
-              {positionLabel}
-            </span>
-          </div>
+          {/* Position Badge with VO indicator */}
+          <PositionBadge
+            position={position}
+            hasVO={!!voSegment}
+            isPlaying={isCurrentlyPlaying}
+          />
 
           {/* Track Info */}
           <div className="flex-1 min-w-0">
@@ -74,33 +90,47 @@ export function QueueItem({ track, index, position }: QueueItemProps) {
             </p>
           </div>
 
-          {/* Duration */}
+          {/* Duration / Current Time */}
           <div className="text-xs text-muted-foreground flex-shrink-0">
-            {formatDuration(track.duration)}
+            {isCurrentlyPlaying && playbackState ? (
+              <>
+                {formatDuration(playbackState.primaryPosition)} /{' '}
+                {formatDuration(track.duration)}
+              </>
+            ) : (
+              formatDuration(track.duration)
+            )}
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-1">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => playFromQueue(index)}
-              className="h-8 w-8 p-0"
-              title="Play now"
-            >
-              <Play className="h-3 w-3" />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => removeFromQueue(index)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-              title="Remove from queue"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+          {/* Playback Controls (Top 2 only) */}
+          {isTopTwo && (
+            <QueueItemControls
+              position={index}
+              isPlaying={isCurrentlyPlaying}
+              isPaused={isPaused}
+            />
+          )}
+
+          {/* Remove Button */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => removeFromQueue(index)}
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive flex-shrink-0"
+            title="Remove from queue"
+          >
+            <X className="h-3 w-3" />
+          </Button>
         </div>
+
+        {/* VO Info Bar */}
+        {voSegment && (
+          <VOInfoBar
+            segment={voSegment}
+            track={track}
+            isActive={playbackState?.secondaryPosition !== undefined}
+          />
+        )}
       </CardContent>
     </Card>
   );

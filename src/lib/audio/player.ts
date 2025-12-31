@@ -1,27 +1,74 @@
 import { Howl, Howler } from 'howler';
 import { PlayerEvent, type PlayerError } from '@/types/player';
 import type { TrackMetadata } from '@/types/track';
+import type { VOSegment } from '@/types/vo';
+import { calculateVOStartOffset, validateVOTiming } from './timing';
 
 type EventCallback = (data?: any) => void;
 
 export class PlayerController {
-  private currentHowl: Howl | null = null;
-  private currentTrack: TrackMetadata | null = null;
+  // Primary audio track (music)
+  private primaryHowl: Howl | null = null;
+  private primaryTrack: TrackMetadata | null = null;
+
+  // Secondary audio tracks (VO segments)
+  private secondaryHowls: Map<string, Howl> = new Map();
+  private secondaryTracks: Map<string, VOSegment> = new Map();
+
+  // Position tracking for each track
+  private positionTrackers: Map<string, number> = new Map();
+  private trackingIntervals: Map<string, NodeJS.Timeout> = new Map();
+
+  // Scheduled VO timeouts
+  private scheduledVOTimeouts: Map<string, NodeJS.Timeout> = new Map();
+
   private eventListeners: Map<PlayerEvent, Set<EventCallback>> = new Map();
-  private positionUpdateInterval: NodeJS.Timeout | null = null;
 
   /**
-   * Load a track into the player
+   * Load a track into the player (legacy method for backward compatibility)
    */
   async load(track: TrackMetadata): Promise<void> {
-    // Stop and unload current track
-    this.unload();
+    return this.loadWithVO(track);
+  }
 
-    this.currentTrack = track;
+  /**
+   * Load a track with optional VO segment
+   */
+  async loadWithVO(track: TrackMetadata, voSegment?: VOSegment): Promise<void> {
+    // Stop and unload current track
+    this.stopAll();
+
+    // Load primary track (song) - this is critical, must succeed
+    await this.loadPrimary(track);
+
+    // Load VO if provided and valid - this is optional, failures are graceful
+    if (voSegment) {
+      const validation = validateVOTiming(track, voSegment);
+      if (!validation.valid) {
+        console.warn(`VO timing invalid, track will play without VO: ${validation.reason}`);
+        // Continue without VO - track plays normally
+        return;
+      }
+
+      try {
+        await this.loadSecondary('vo', voSegment);
+        console.log(`VO loaded successfully for: ${track.title}`);
+      } catch (error) {
+        // Graceful degradation - VO failed to load but track can still play
+        console.warn(`Failed to load VO segment, track will play without voice-over:`, error);
+        // Don't re-throw - the primary track is loaded and can play
+      }
+    }
+  }
+
+  /**
+   * Load primary track (song)
+   */
+  private async loadPrimary(track: TrackMetadata): Promise<void> {
+    this.primaryTrack = track;
 
     return new Promise((resolve, reject) => {
-      // Create Howl instance
-      this.currentHowl = new Howl({
+      this.primaryHowl = new Howl({
         src: [`/media/${track.filePath}`],
         html5: true, // Use HTML5 Audio for streaming
         preload: true,
@@ -39,20 +86,19 @@ export class PlayerController {
           reject(playerError);
         },
         onplay: () => {
-          this.startPositionUpdates();
+          this.startPositionTracking('primary');
           this.emit(PlayerEvent.TRACK_PLAYING, track);
         },
         onpause: () => {
-          this.stopPositionUpdates();
+          this.stopPositionTracking('primary');
           this.emit(PlayerEvent.TRACK_PAUSED, track);
         },
         onstop: () => {
-          this.stopPositionUpdates();
+          this.stopPositionTracking('primary');
           this.emit(PlayerEvent.TRACK_STOPPED, track);
         },
         onend: () => {
-          this.stopPositionUpdates();
-          this.emit(PlayerEvent.TRACK_ENDED, track);
+          this.handlePrimaryEnded();
         },
         onplayerror: (_id, error) => {
           const playerError: PlayerError = {
@@ -67,39 +113,174 @@ export class PlayerController {
   }
 
   /**
-   * Play the loaded track
+   * Load secondary track (VO segment)
+   */
+  private async loadSecondary(id: string, voSegment: VOSegment): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const howl = new Howl({
+        src: [voSegment.fileUrl],
+        html5: false, // Use Web Audio for better timing control
+        preload: true,
+        volume: 0.9, // Slightly lower than primary
+        onload: () => {
+          this.secondaryHowls.set(id, howl);
+          this.secondaryTracks.set(id, voSegment);
+          this.emit(PlayerEvent.VO_LOADED, voSegment);
+          resolve();
+        },
+        onloaderror: (_id, error) => {
+          console.error('Failed to load VO:', error);
+          this.emit(PlayerEvent.VO_ERROR, { error, voSegment });
+          reject(error);
+        },
+        onplay: () => {
+          this.startPositionTracking(id);
+          this.emit(PlayerEvent.VO_PLAYING, voSegment);
+        },
+        onend: () => {
+          this.stopPositionTracking(id);
+          this.secondaryHowls.delete(id);
+          this.secondaryTracks.delete(id);
+          this.emit(PlayerEvent.VO_ENDED, voSegment);
+        },
+        onplayerror: (_id, error) => {
+          console.error('VO playback error:', error);
+          this.emit(PlayerEvent.VO_ERROR, { error, voSegment });
+        },
+      });
+    });
+  }
+
+  /**
+   * Play the loaded track (legacy method for backward compatibility)
    */
   play(): void {
-    if (!this.currentHowl) {
+    this.playWithSync();
+  }
+
+  /**
+   * Play primary track with synchronized VO segments
+   */
+  playWithSync(): void {
+    if (!this.primaryHowl || !this.primaryTrack) {
       console.warn('No track loaded');
       return;
     }
 
-    this.currentHowl.play();
+    // Play primary track immediately
+    this.primaryHowl.play();
+
+    // Schedule secondary tracks with offset
+    this.secondaryTracks.forEach((voSegment, id) => {
+      const howl = this.secondaryHowls.get(id);
+      if (!howl || !this.primaryTrack) return;
+
+      const offset = calculateVOStartOffset(this.primaryTrack, voSegment);
+      const delayMs = offset * 1000;
+
+      // Schedule VO to start after offset
+      const timeout = setTimeout(() => {
+        // Verify primary is still playing
+        if (this.primaryHowl?.playing()) {
+          howl.play();
+        }
+      }, delayMs);
+
+      this.scheduledVOTimeouts.set(id, timeout);
+    });
   }
 
   /**
-   * Pause playback
+   * Pause all tracks
    */
   pause(): void {
-    if (!this.currentHowl) return;
-    this.currentHowl.pause();
+    this.pauseAll();
   }
 
   /**
-   * Stop playback and reset position
+   * Pause all active tracks
+   */
+  pauseAll(): void {
+    this.primaryHowl?.pause();
+    this.secondaryHowls.forEach(howl => howl.pause());
+
+    // Clear scheduled VO timeouts
+    this.scheduledVOTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.scheduledVOTimeouts.clear();
+  }
+
+  /**
+   * Stop playback (legacy method for backward compatibility)
    */
   stop(): void {
-    if (!this.currentHowl) return;
-    this.currentHowl.stop();
+    this.stopAll();
+  }
+
+  /**
+   * Stop and cleanup all tracks
+   */
+  stopAll(): void {
+    // Clear scheduled VO timeouts
+    this.scheduledVOTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.scheduledVOTimeouts.clear();
+
+    // Stop and unload primary
+    if (this.primaryHowl) {
+      this.primaryHowl.stop();
+      this.primaryHowl.unload();
+      this.primaryHowl = null;
+    }
+    this.primaryTrack = null;
+
+    // Stop and unload secondaries
+    this.secondaryHowls.forEach(howl => {
+      howl.stop();
+      howl.unload();
+    });
+    this.secondaryHowls.clear();
+    this.secondaryTracks.clear();
+
+    // Stop all position tracking
+    this.stopAllPositionTracking();
+  }
+
+  /**
+   * Handle primary track ended
+   */
+  private handlePrimaryEnded(): void {
+    this.stopPositionTracking('primary');
+
+    // Wait briefly to see if any VO is still playing
+    setTimeout(() => {
+      const hasActiveVO = Array.from(this.secondaryHowls.values())
+        .some(howl => howl.playing());
+
+      if (!hasActiveVO) {
+        this.emit(PlayerEvent.TRACK_ENDED, this.primaryTrack);
+      }
+    }, 100);
   }
 
   /**
    * Seek to a position (in seconds)
+   * Note: Seeking disrupts VO timing, so we stop secondary tracks
    */
   seek(position: number): void {
-    if (!this.currentHowl) return;
-    this.currentHowl.seek(position);
+    if (!this.primaryHowl) return;
+
+    // Stop all secondary tracks when seeking
+    this.secondaryHowls.forEach(howl => {
+      howl.stop();
+      howl.unload();
+    });
+    this.secondaryHowls.clear();
+    this.secondaryTracks.clear();
+
+    // Clear scheduled timeouts
+    this.scheduledVOTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.scheduledVOTimeouts.clear();
+
+    this.primaryHowl.seek(position);
     this.emit(PlayerEvent.POSITION_UPDATE, position);
   }
 
@@ -131,8 +312,8 @@ export class PlayerController {
    * Get current playback position (in seconds)
    */
   getCurrentTime(): number {
-    if (!this.currentHowl) return 0;
-    const seek = this.currentHowl.seek();
+    if (!this.primaryHowl) return 0;
+    const seek = this.primaryHowl.seek();
     return typeof seek === 'number' ? seek : 0;
   }
 
@@ -140,34 +321,36 @@ export class PlayerController {
    * Get track duration (in seconds)
    */
   getDuration(): number {
-    if (!this.currentHowl) return 0;
-    return this.currentHowl.duration();
+    if (!this.primaryHowl) return 0;
+    return this.primaryHowl.duration();
   }
 
   /**
    * Check if currently playing
    */
   isPlaying(): boolean {
-    return this.currentHowl?.playing() ?? false;
+    return this.primaryHowl?.playing() ?? false;
   }
 
   /**
    * Get current track
    */
   getCurrentTrack(): TrackMetadata | null {
-    return this.currentTrack;
+    return this.primaryTrack;
   }
 
   /**
-   * Unload current track and cleanup
+   * Get all track positions (for multi-track UI updates)
+   */
+  getPositions(): Map<string, number> {
+    return new Map(this.positionTrackers);
+  }
+
+  /**
+   * Unload current track and cleanup (legacy method)
    */
   unload(): void {
-    if (this.currentHowl) {
-      this.stopPositionUpdates();
-      this.currentHowl.unload();
-      this.currentHowl = null;
-    }
-    this.currentTrack = null;
+    this.stopAll();
   }
 
   /**
@@ -201,31 +384,64 @@ export class PlayerController {
   }
 
   /**
-   * Start emitting position updates
+   * Start position tracking for a specific track
    */
-  private startPositionUpdates(): void {
-    this.stopPositionUpdates();
-    this.positionUpdateInterval = setInterval(() => {
-      const position = this.getCurrentTime();
-      this.emit(PlayerEvent.POSITION_UPDATE, position);
+  private startPositionTracking(trackId: string): void {
+    this.stopPositionTracking(trackId);
+
+    const intervalId = setInterval(() => {
+      if (trackId === 'primary' && this.primaryHowl) {
+        const pos = this.primaryHowl.seek();
+        this.positionTrackers.set(trackId, typeof pos === 'number' ? pos : 0);
+      } else {
+        const howl = this.secondaryHowls.get(trackId);
+        if (howl) {
+          const pos = howl.seek();
+          this.positionTrackers.set(trackId, typeof pos === 'number' ? pos : 0);
+        }
+      }
+
+      // Emit consolidated position update
+      this.emit(PlayerEvent.MULTI_TRACK_POSITION_UPDATE, {
+        positions: new Map(this.positionTrackers),
+        timestamp: Date.now()
+      });
+
+      // Also emit legacy POSITION_UPDATE for backward compatibility
+      if (trackId === 'primary') {
+        this.emit(PlayerEvent.POSITION_UPDATE, this.positionTrackers.get('primary') || 0);
+      }
     }, 100); // Update every 100ms
+
+    this.trackingIntervals.set(trackId, intervalId);
   }
 
   /**
-   * Stop emitting position updates
+   * Stop position tracking for a specific track
    */
-  private stopPositionUpdates(): void {
-    if (this.positionUpdateInterval) {
-      clearInterval(this.positionUpdateInterval);
-      this.positionUpdateInterval = null;
+  private stopPositionTracking(trackId: string): void {
+    const intervalId = this.trackingIntervals.get(trackId);
+    if (intervalId) {
+      clearInterval(intervalId);
+      this.trackingIntervals.delete(trackId);
+      this.positionTrackers.delete(trackId);
     }
+  }
+
+  /**
+   * Stop all position tracking
+   */
+  private stopAllPositionTracking(): void {
+    this.trackingIntervals.forEach(interval => clearInterval(interval));
+    this.trackingIntervals.clear();
+    this.positionTrackers.clear();
   }
 
   /**
    * Cleanup and dispose
    */
   dispose(): void {
-    this.unload();
+    this.stopAll();
     this.eventListeners.clear();
   }
 }
