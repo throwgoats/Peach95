@@ -92,9 +92,6 @@ export function TrackInfoPanel({ track, onClose }: TrackInfoPanelProps) {
             <div className="text-sm font-medium text-muted-foreground">
               {categoryNames[track.rotation.category]}
             </div>
-            <div className="text-xs text-muted-foreground">
-              Rotation: Every {track.rotation.frequency} hours
-            </div>
           </div>
         </div>
 
