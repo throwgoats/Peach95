@@ -9,6 +9,10 @@ interface ScriptGenerationParams {
     title: string;
     artist: string;
   };
+  previousTrack?: {
+    title: string;
+    artist: string;
+  };
   nextTrack?: {
     title: string;
     artist: string;
@@ -75,7 +79,7 @@ export async function generateVOScript(params: ScriptGenerationParams): Promise<
  */
 function buildPrompt(params: ScriptGenerationParams): string {
   const breakConfig = BREAK_TYPES[params.breakType];
-  const { currentTrack, nextTrack, persona, timeOfDay, energyLevel, context } = params;
+  const { currentTrack, previousTrack, nextTrack, persona, timeOfDay, energyLevel, context } = params;
 
   // Energy-based tone guidance
   const energyTone = energyLevel >= 4
@@ -140,7 +144,8 @@ function buildPrompt(params: ScriptGenerationParams): string {
 Generate a ${params.breakType} radio voice-over for the ${timeOfDay} shift.
 
 TRACK INFORMATION:
-- Just played: "${currentTrack.title}" by ${currentTrack.artist}
+${previousTrack ? `- Just played: "${previousTrack.title}" by ${previousTrack.artist}` : ''}
+- Now playing: "${currentTrack.title}" by ${currentTrack.artist}
 ${nextTrack ? `- Coming up next: "${nextTrack.title}" by ${nextTrack.artist}` : ''}
 
 STYLE REQUIREMENTS:

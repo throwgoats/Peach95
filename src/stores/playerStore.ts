@@ -350,6 +350,9 @@ export const usePlayerStore = create<PlayerStore>()(
                 await new Promise(resolve => setTimeout(resolve, 500 * attempt));
               }
 
+              // Get previous track for backsell references
+              const prevItem = position > 0 ? get().queueItems[position - 1] : null;
+
               const response = await fetch('/api/vo-segments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -366,6 +369,10 @@ export const usePlayerStore = create<PlayerStore>()(
                       energy: queueItem.track.rotation.energy
                     }
                   },
+                  previousTrack: prevItem ? {
+                    title: prevItem.track.title,
+                    artist: prevItem.track.artist
+                  } : undefined,
                   nextTrack: nextItem ? {
                     title: nextItem.track.title,
                     artist: nextItem.track.artist

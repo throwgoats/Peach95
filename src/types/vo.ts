@@ -30,6 +30,10 @@ export interface VOGenerationRequest {
       energy: number;
     };
   };
+  previousTrack?: {
+    title: string;
+    artist: string;
+  };
   nextTrack?: {
     title: string;
     artist: string;

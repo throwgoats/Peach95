@@ -12,7 +12,7 @@ import { generateTTS, getVoiceIdForPersona } from '@/lib/ai/elevenlabs';
 export async function POST(request: NextRequest) {
   try {
     const body: VOGenerationRequest = await request.json();
-    const { currentTrack, nextTrack, persona, timeOfDay, breakType, context, energyLevel } = body;
+    const { currentTrack, previousTrack, nextTrack, persona, timeOfDay, breakType, context, energyLevel } = body;
 
     // Validate intro timing
     if (currentTrack.timing.coldOpen) {
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       // Generate with AI
       voSegment = await generateAIVOSegment(
         currentTrack,
+        previousTrack,
         nextTrack,
         persona,
         timeOfDay,
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       console.warn('AI API keys not configured, using mock VO generation');
       voSegment = generateMockVOSegment(
         currentTrack,
+        previousTrack,
         nextTrack,
         persona,
         timeOfDay,
@@ -104,6 +106,7 @@ export async function POST(request: NextRequest) {
  */
 async function generateAIVOSegment(
   currentTrack: VOGenerationRequest['currentTrack'],
+  previousTrack: VOGenerationRequest['previousTrack'] | undefined,
   nextTrack: VOGenerationRequest['nextTrack'] | undefined,
   persona: string,
   timeOfDay: 'morning' | 'afternoon' | 'evening' | 'overnight',
@@ -117,6 +120,10 @@ async function generateAIVOSegment(
       title: currentTrack.title,
       artist: currentTrack.artist
     },
+    previousTrack: previousTrack ? {
+      title: previousTrack.title,
+      artist: previousTrack.artist
+    } : undefined,
     nextTrack: nextTrack ? {
       title: nextTrack.title,
       artist: nextTrack.artist
@@ -155,6 +162,7 @@ async function generateAIVOSegment(
  */
 function generateMockVOSegment(
   currentTrack: VOGenerationRequest['currentTrack'],
+  previousTrack: VOGenerationRequest['previousTrack'] | undefined,
   nextTrack: VOGenerationRequest['nextTrack'] | undefined,
   persona: string,
   timeOfDay: string,
@@ -175,53 +183,90 @@ function generateMockVOSegment(
 
   switch (breakType) {
     case 'short':
-      mainContent = `That was ${currentTrack.artist} with ${currentTrack.title}.`;
+      // Backsell the previous track
+      if (previousTrack) {
+        mainContent = `That was ${previousTrack.artist} with ${previousTrack.title}.`;
+      } else {
+        mainContent = `Great music here on Peach 95.`;
+      }
       break;
 
     case 'personal':
-      const personalLines = [
-        `You know, ${currentTrack.title} by ${currentTrack.artist} always reminds me of summer road trips. Brings back great memories!`,
-        `Love this track from ${currentTrack.artist}. Fun fact: I actually saw them live last year - incredible show!`,
-        `${currentTrack.title}... this one never gets old. Been in my playlist since day one.`
-      ];
-      mainContent = personalLines[Math.floor(Math.random() * personalLines.length)];
+      // Personal anecdotes about the previous track
+      if (previousTrack) {
+        const personalLines = [
+          `You know, ${previousTrack.title} by ${previousTrack.artist} always reminds me of summer road trips. Brings back great memories!`,
+          `Love this track from ${previousTrack.artist}. Fun fact: I actually saw them live last year - incredible show!`,
+          `${previousTrack.title}... this one never gets old. Been in my playlist since day one.`
+        ];
+        mainContent = personalLines[Math.floor(Math.random() * personalLines.length)];
+      } else {
+        mainContent = `Loving the vibe today!`;
+      }
       break;
 
     case 'upsell':
-      if (nextTrack) {
-        mainContent = `That was ${currentTrack.artist}. Coming up, we've got ${nextTrack.title} by ${nextTrack.artist}, and later this hour, even more hits!`;
+      // Mix of backsell and forward sell
+      if (previousTrack && nextTrack) {
+        mainContent = `That was ${previousTrack.artist}. Coming up, we've got ${nextTrack.title} by ${nextTrack.artist}, and later this hour, even more hits!`;
+      } else if (previousTrack) {
+        mainContent = `That was ${previousTrack.title}. Stay tuned, we've got an amazing hour of music ahead!`;
+      } else if (nextTrack) {
+        mainContent = `Coming up, we've got ${nextTrack.title} by ${nextTrack.artist}!`;
       } else if (context?.upcomingEvent) {
-        mainContent = `${currentTrack.artist} with ${currentTrack.title}. Don't forget - ${context.upcomingEvent} happening soon!`;
+        mainContent = `Don't forget - ${context.upcomingEvent} happening soon!`;
       } else {
-        mainContent = `That was ${currentTrack.title}. Stay tuned, we've got an amazing hour of music ahead!`;
+        mainContent = `Stay tuned, we've got an amazing hour of music ahead!`;
       }
       break;
 
     case 'backsell':
-      mainContent = `That was ${currentTrack.title} by ${currentTrack.artist}, great track from their latest album.`;
+      // Detailed backsell of previous track
+      if (previousTrack) {
+        mainContent = `That was ${previousTrack.title} by ${previousTrack.artist}, great track from their latest album.`;
+      } else {
+        mainContent = `Great track from a great artist.`;
+      }
       break;
 
     case 'time-temp':
       const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       const temp = context?.temperature || 72;
-      mainContent = `It's ${time}, ${temp} degrees outside. That was ${currentTrack.artist} with ${currentTrack.title}.`;
+      if (previousTrack) {
+        mainContent = `It's ${time}, ${temp} degrees outside. That was ${previousTrack.artist} with ${previousTrack.title}.`;
+      } else {
+        mainContent = `It's ${time}, ${temp} degrees outside.`;
+      }
       break;
 
     case 'contest':
       if (context?.contestActive) {
-        mainContent = `${currentTrack.title} by ${currentTrack.artist}. Remember, call in now for your chance to win - lines are open!`;
+        if (previousTrack) {
+          mainContent = `${previousTrack.title} by ${previousTrack.artist}. Remember, call in now for your chance to win - lines are open!`;
+        } else {
+          mainContent = `Call in now for your chance to win - lines are open!`;
+        }
       } else {
-        mainContent = `That was ${currentTrack.artist}. Keep listening for your chance to win tickets to upcoming shows!`;
+        if (previousTrack) {
+          mainContent = `That was ${previousTrack.artist}. Keep listening for your chance to win tickets to upcoming shows!`;
+        } else {
+          mainContent = `Keep listening for your chance to win tickets to upcoming shows!`;
+        }
       }
       break;
 
     case 'station-id':
-      // Legal ID - just the call sign and artist
-      transcript = `${opener}. ${currentTrack.artist}, ${closer}.`;
+      // Legal ID - just the call sign and artist (use previous track if available)
+      const idArtist = previousTrack?.artist || currentTrack.artist;
+      transcript = `${opener}. ${idArtist}, ${closer}.`;
       break;
 
     default:
-      mainContent = `That was ${currentTrack.artist} with ${currentTrack.title}.`;
+      if (previousTrack) {
+        mainContent = `That was ${previousTrack.artist} with ${previousTrack.title}.`;
+      } else {
+        mainContent = `More great music coming up!`;
+      }
   }
 
   // Build full transcript with opener and closer (unless it's a station-id which has its own format)
