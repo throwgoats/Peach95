@@ -23,7 +23,6 @@ export const TrackMetadataSchema = z.object({
     outro: z.number(),
     hookStart: z.number().optional(),
     coldOpen: z.boolean(),
-    coldOut: z.boolean(),
   }),
 
   // Rotation & Scheduling

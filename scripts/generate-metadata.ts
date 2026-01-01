@@ -77,7 +77,6 @@ function generateMetadata() {
         intro: 8.0,
         outro: 12.0,
         coldOpen: false,
-        coldOut: false,
       },
 
       // Rotation & scheduling

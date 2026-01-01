@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
           intro: currentTrack.timing.intro,
           outro: 0,
           coldOpen: currentTrack.timing.coldOpen,
-          coldOut: false
         },
         rotation: {
           category: 'A' as const,

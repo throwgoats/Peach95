@@ -102,7 +102,14 @@ export function QueueItem({ queueItem, index, position, previousTrack }: QueueIt
 
             {/* Track Info */}
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-sm truncate">{track.title}</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="font-medium text-sm truncate">{track.title}</h4>
+                {track.timing.coldOpen && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 flex-shrink-0" title="Cold Open - track starts a segment">
+                    Cold Open
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground truncate">
                 {track.artist}
               </p>

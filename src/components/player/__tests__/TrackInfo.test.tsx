@@ -17,7 +17,6 @@ const mockTrack: TrackMetadata = {
     intro: 8,
     outro: 12,
     coldOpen: false,
-    coldOut: false,
   },
   rotation: {
     category: 'A',

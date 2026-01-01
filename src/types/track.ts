@@ -21,7 +21,6 @@ export interface TrackMetadata {
     outro: number;
     hookStart?: number;
     coldOpen: boolean;
-    coldOut: boolean;
   };
 
   // Rotation & Scheduling

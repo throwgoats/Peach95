@@ -98,7 +98,14 @@ export function TrackInfoPanel({ track, onClose }: TrackInfoPanelProps) {
         {/* Track Details */}
         <div className="space-y-2">
           <div>
-            <h3 className="font-semibold text-lg">{track.title}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-lg">{track.title}</h3>
+              {track.timing.coldOpen && (
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400" title="Cold Open - track starts a segment">
+                  Cold Open
+                </span>
+              )}
+            </div>
             <p className="text-muted-foreground">{track.artist}</p>
           </div>
 

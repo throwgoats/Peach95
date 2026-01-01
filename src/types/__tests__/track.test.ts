@@ -12,7 +12,6 @@ describe('TrackMetadata Type', () => {
         intro: 0,
         outro: 0,
         coldOpen: false,
-        coldOut: false,
       },
       rotation: {
         category: 'A',
@@ -49,7 +48,6 @@ describe('TrackMetadata Type', () => {
         outro: 0,
         hookStart: 60,
         coldOpen: false,
-        coldOut: true,
       },
       rotation: {
         category: 'B',
@@ -86,7 +84,6 @@ describe('TrackMetadata Type', () => {
         intro: 0,
         outro: 0,
         coldOpen: false,
-        coldOut: false,
       },
       rotation: {
         category: 'C',
@@ -127,7 +124,6 @@ describe('TrackMetadata Type', () => {
           intro: 0,
           outro: 0,
           coldOpen: false,
-          coldOut: false,
         },
         rotation: {
           category,
@@ -160,7 +156,6 @@ describe('TrackMetadata Type', () => {
           intro: 0,
           outro: 0,
           coldOpen: false,
-          coldOut: false,
         },
         rotation: {
           category: 'A',
@@ -190,7 +185,6 @@ describe('TrackMetadata Type', () => {
         intro: 0,
         outro: 0,
         coldOpen: false,
-        coldOut: false,
       },
       rotation: {
         category: 'D',

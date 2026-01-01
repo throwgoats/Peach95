@@ -9,8 +9,7 @@
   "timing": {
     "intro": 8,
     "outro": 12,
-    "coldOpen": false,
-    "coldOut": false
+    "coldOpen": false
   },
   "rotation": {
     "category": "A",

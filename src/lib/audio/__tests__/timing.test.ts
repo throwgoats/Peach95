@@ -16,7 +16,6 @@ const createMockTrack = (overrides?: Partial<TrackMetadata>): TrackMetadata => (
     intro: 10,
     outro: 12,
     coldOpen: false,
-    coldOut: false,
   },
   rotation: {
     category: 'A',

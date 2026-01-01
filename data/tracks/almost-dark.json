@@ -1,0 +1,25 @@
+{
+  "id": "almost-dark",
+  "filePath": "tracks/Almost Dark.mp3",
+  "title": "Almost Dark",
+  "artist": "Renfield",
+  "duration": 212,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 8,
+    "outro": 12,
+    "coldOpen": false
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 2,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-01T19:21:15.051Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-01T19:21:15.051Z",
+  "updatedAt": "2026-01-01T19:21:15.051Z",
+  "version": 1
+}
