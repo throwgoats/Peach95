@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { TrackInfo } from '@/components/player/TrackInfo';
 import { TrackList } from '@/components/library/TrackList';
 import { TrackInfoPanel } from '@/components/library/TrackInfoPanel';
 import { QueuePanel } from '@/components/queue/QueuePanel';
@@ -20,8 +19,8 @@ export default function Home() {
 
   return (
     <DndProvider>
-      <main className="min-h-screen bg-gradient-to-br from-background to-muted p-4 md:p-8">
-        <div className="space-y-6">
+      <main className="h-screen bg-gradient-to-br from-background to-muted p-4 md:p-8 overflow-hidden">
+        <div className="h-full flex flex-col space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
@@ -32,14 +31,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr_1fr] gap-6">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[3fr_4fr_2fr] gap-6 min-h-0">
             {/* Left Column - Library */}
-            <div className="space-y-6">
-              <Card>
+            <div className="space-y-6 min-h-0 flex flex-col">
+              <Card className="flex flex-col overflow-hidden">
                 <CardHeader>
                   <CardTitle>Track Library</CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                <CardContent className="flex-1 overflow-y-auto">
                   <TrackList
                     onTrackSelect={setSelectedTrack}
                     selectedTrack={selectedTrack}
@@ -48,14 +47,13 @@ export default function Home() {
               </Card>
             </div>
 
-            {/* Middle Column - Player & Queue */}
-            <div className="space-y-6">
-              <TrackInfo />
+            {/* Middle Column - Queue */}
+            <div className="space-y-6 min-h-0 flex flex-col">
               <QueuePanel />
             </div>
 
             {/* Right Column - DJ, Track Info */}
-            <div className="space-y-6">
+            <div className="space-y-6 min-h-0 flex flex-col">
               <DJSelector />
               <TrackInfoPanel
                 track={selectedTrack}
@@ -65,7 +63,7 @@ export default function Home() {
           </div>
 
           {/* Footer */}
-          <div className="text-center text-sm text-muted-foreground pt-8 pb-8 space-y-2">
+          <div className="flex-shrink-0 text-center text-sm text-muted-foreground pt-4 space-y-2">
             <p>Peach95 Radio Automation - MVP v0.2.0</p>
             <p className="text-xs">
               Keyboard shortcuts: <kbd className="px-2 py-1 bg-muted rounded">Space</kbd> Play/Pause ·

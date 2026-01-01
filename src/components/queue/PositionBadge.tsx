@@ -9,16 +9,17 @@ interface PositionBadgeProps {
 }
 
 export function PositionBadge({ position, hasVO, isPlaying }: PositionBadgeProps) {
-  const label = position === 1 ? 'Next' : position.toString();
+  // If playing, show "Playing", otherwise show "Next" for position 1, or the position number
+  const label = isPlaying ? 'Playing' : (position === 1 ? 'Next' : position.toString());
 
   return (
-    <div className="flex-shrink-0 w-14 text-center relative">
+    <div className="flex-shrink-0 w-16 text-center relative">
       <span
         className={cn(
           "text-xs font-medium px-2 py-1 rounded inline-block transition-all",
-          isPlaying && "ring-2 ring-primary ring-offset-1 animate-pulse",
-          position === 1 && "bg-primary text-primary-foreground",
-          position !== 1 && "bg-muted text-muted-foreground"
+          isPlaying && "ring-2 ring-primary ring-offset-1 animate-pulse bg-primary text-primary-foreground",
+          !isPlaying && position === 1 && "bg-primary text-primary-foreground",
+          !isPlaying && position !== 1 && "bg-muted text-muted-foreground"
         )}
       >
         {label}

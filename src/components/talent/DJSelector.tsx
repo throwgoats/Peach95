@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,16 +10,18 @@ import { usePlayerStore } from '@/stores/playerStore';
 
 export function DJSelector() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentDaypart, setCurrentDaypart] = useState<'morning' | 'afternoon' | 'evening' | 'overnight'>('morning');
   const activeTalent = usePlayerStore(state => state.activeTalent);
   const setActiveTalent = usePlayerStore(state => state.setActiveTalent);
 
-  const currentDaypart = (() => {
+  // Calculate daypart only on client side to avoid hydration mismatch
+  useEffect(() => {
     const hour = new Date().getHours();
-    if (hour >= 6 && hour < 12) return 'morning';
-    if (hour >= 12 && hour < 18) return 'afternoon';
-    if (hour >= 18 && hour < 22) return 'evening';
-    return 'overnight';
-  })();
+    if (hour >= 6 && hour < 12) setCurrentDaypart('morning');
+    else if (hour >= 12 && hour < 18) setCurrentDaypart('afternoon');
+    else if (hour >= 18 && hour < 22) setCurrentDaypart('evening');
+    else setCurrentDaypart('overnight');
+  }, []);
 
   // Use active talent or default for current daypart
   const currentTalent = activeTalent || getDefaultTalentForDaypart(currentDaypart);
