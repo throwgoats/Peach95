@@ -83,12 +83,29 @@ export const usePlayerStore = create<PlayerStore>()(
       player.on(PlayerEvent.TRACK_ENDED, () => {
         set({ playbackState: 'stopped', position: 0 });
 
-        // Auto-advance to next track in queue
-        const { queue } = get();
-        if (queue.length > 0) {
-          setTimeout(() => {
-            get().playNext();
-          }, 100);
+        // Remove the finished track from queue
+        const { queueItems } = get();
+        if (queueItems.length > 0) {
+          const newQueueItems = queueItems.slice(1);
+          newQueueItems.forEach((item, idx) => {
+            item.queuePosition = idx;
+          });
+          set({
+            queueItems: newQueueItems,
+            queue: newQueueItems.map(item => item.track)
+          });
+
+          // Auto-advance to next track (which is now at position 0)
+          if (newQueueItems.length > 0) {
+            setTimeout(() => {
+              get().loadAndPlayQueueItem(0);
+            }, 100);
+          }
+
+          // Generate VO for position 2 (the new third item) if it doesn't have one yet
+          if (newQueueItems.length > 2 && !newQueueItems[2].voSegment) {
+            get().generateVOForQueueItem(2);
+          }
         }
       });
 
@@ -271,42 +288,16 @@ export const usePlayerStore = create<PlayerStore>()(
         },
 
         playFromQueue: async (index: number) => {
+          // Just load and play - track will be removed when it ends (TRACK_ENDED event)
           await get().loadAndPlayQueueItem(index);
-
-          // Remove from queue after starting playback
-          const { queueItems } = get();
-          const newQueueItems = queueItems.filter((_, i) => i !== index);
-          newQueueItems.forEach((item, idx) => {
-            item.queuePosition = idx;
-          });
-          set({
-            queueItems: newQueueItems,
-            queue: newQueueItems.map(item => item.track)
-          });
         },
 
         playNext: async () => {
           const { queueItems } = get();
 
           if (queueItems.length > 0) {
-            // Play first item
+            // Play first item - track will be removed when it ends (TRACK_ENDED event)
             await get().loadAndPlayQueueItem(0);
-
-            // Remove first track from queue
-            const newQueueItems = queueItems.slice(1);
-            newQueueItems.forEach((item, idx) => {
-              item.queuePosition = idx;
-            });
-            set({
-              queueItems: newQueueItems,
-              queue: newQueueItems.map(item => item.track)
-            });
-
-            // Generate VO for position 2 (the new third item) if it doesn't have one yet
-            // This maintains the "top 3 ready" window as items advance
-            if (newQueueItems.length > 2 && !newQueueItems[2].voSegment) {
-              await get().generateVOForQueueItem(2);
-            }
           }
         },
 

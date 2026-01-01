@@ -9,8 +9,19 @@ interface PositionBadgeProps {
 }
 
 export function PositionBadge({ position, hasVO, isPlaying }: PositionBadgeProps) {
-  // If playing, show "Playing", otherwise show "Next" for position 1, or the position number
-  const label = isPlaying ? 'Playing' : (position === 1 ? 'Next' : position.toString());
+  // Determine label:
+  // - If currently playing: "Playing"
+  // - If first in queue (position 1) and not playing: "Next"
+  // - Otherwise: show position number
+  let label: string;
+  if (isPlaying) {
+    label = 'Playing';
+  } else if (position === 1) {
+    label = 'Next';
+  } else {
+    // For positions 2+, show as 2, 3, 4... (not 1, 2, 3...)
+    label = position.toString();
+  }
 
   return (
     <div className="flex-shrink-0 w-16 text-center relative">
