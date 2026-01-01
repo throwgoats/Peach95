@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <DndProvider>
       <main className="min-h-screen bg-gradient-to-br from-background to-muted p-4 md:p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
@@ -32,31 +32,35 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-            {/* Main Content Column - Player and Queue */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr_1fr] gap-6">
+            {/* Left Column - Library */}
             <div className="space-y-6">
-              <TrackInfo />
-              <QueuePanel />
-            </div>
-
-            {/* Sidebar Column - DJ, Track Info, Library */}
-            <div className="space-y-6">
-              <DJSelector />
-              <TrackInfoPanel
-                track={selectedTrack}
-                onClose={() => setSelectedTrack(null)}
-              />
               <Card>
                 <CardHeader>
                   <CardTitle>Track Library</CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-[600px] overflow-y-auto">
+                <CardContent className="max-h-[calc(100vh-200px)] overflow-y-auto">
                   <TrackList
                     onTrackSelect={setSelectedTrack}
                     selectedTrack={selectedTrack}
                   />
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Middle Column - Player & Queue */}
+            <div className="space-y-6">
+              <TrackInfo />
+              <QueuePanel />
+            </div>
+
+            {/* Right Column - DJ, Track Info */}
+            <div className="space-y-6">
+              <DJSelector />
+              <TrackInfoPanel
+                track={selectedTrack}
+                onClose={() => setSelectedTrack(null)}
+              />
             </div>
           </div>
 

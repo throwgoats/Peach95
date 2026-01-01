@@ -112,7 +112,7 @@ export function QueuePanel() {
           Total: {formatDuration(totalDuration)}
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto max-h-[400px]">
+      <CardContent className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)]">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
