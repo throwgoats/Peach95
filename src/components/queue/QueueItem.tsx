@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { QueueItemControls } from './QueueItemControls';
 import { VOInfoBar } from './VOInfoBar';
 import { PositionBadge } from './PositionBadge';
+import { EnergyMeter } from './EnergyMeter';
 
 interface QueueItemProps {
   queueItem: QueueItemType;
@@ -117,26 +118,35 @@ export function QueueItem({ queueItem, index, position, previousTrack }: QueueIt
               </p>
             </div>
 
-            {/* Duration / Current Time */}
-            <div className="text-xs text-muted-foreground flex-shrink-0">
-              {isCurrentlyPlaying && playbackState ? (
-                <>
-                  {formatDuration(playbackState.primaryPosition)} /{' '}
-                  {formatDuration(track.duration)}
-                </>
-              ) : (
-                formatDuration(track.duration)
-              )}
-            </div>
+            {/* Right side controls group */}
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              {/* Top row: Duration/Time and Controls */}
+              <div className="flex items-center gap-2">
+                {/* Duration / Current Time */}
+                <div className="text-xs text-muted-foreground">
+                  {isCurrentlyPlaying && playbackState ? (
+                    <>
+                      {formatDuration(playbackState.primaryPosition)} /{' '}
+                      {formatDuration(track.duration)}
+                    </>
+                  ) : (
+                    formatDuration(track.duration)
+                  )}
+                </div>
 
-            {/* Playback Controls (Top 2 only) */}
-            {isTopTwo && (
-              <QueueItemControls
-                position={index}
-                isPlaying={isCurrentlyPlaying}
-                isPaused={isPaused}
-              />
-            )}
+                {/* Playback Controls (Top 2 only) */}
+                {isTopTwo && (
+                  <QueueItemControls
+                    position={index}
+                    isPlaying={isCurrentlyPlaying}
+                    isPaused={isPaused}
+                  />
+                )}
+              </div>
+
+              {/* Bottom row: Energy Meter */}
+              <EnergyMeter energy={track.rotation.energy} compact />
+            </div>
 
             {/* Remove Button */}
             <Button
