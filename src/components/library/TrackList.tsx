@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { TrackCard } from './TrackCard';
 import { useLibraryStore } from '@/stores/libraryStore';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, ArrowUpDown } from 'lucide-react';
 import type { TrackMetadata } from '@/types/track';
 
 interface TrackListProps {
@@ -13,10 +14,16 @@ interface TrackListProps {
 }
 
 export function TrackList({ onTrackSelect, selectedTrack }: TrackListProps) {
-  const tracks = useLibraryStore((state) => state.tracks);
   const loading = useLibraryStore((state) => state.loading);
   const error = useLibraryStore((state) => state.error);
   const loadTracks = useLibraryStore((state) => state.loadTracks);
+  const getFilteredTracks = useLibraryStore((state) => state.getFilteredTracks);
+  const sortBy = useLibraryStore((state) => state.sortBy);
+  const sortOrder = useLibraryStore((state) => state.sortOrder);
+  const setSortBy = useLibraryStore((state) => state.setSortBy);
+  const setSortOrder = useLibraryStore((state) => state.setSortOrder);
+
+  const tracks = getFilteredTracks();
 
   useEffect(() => {
     loadTracks();
@@ -66,9 +73,41 @@ export function TrackList({ onTrackSelect, selectedTrack }: TrackListProps) {
 
   return (
     <div className="space-y-2">
-      <div className="text-sm text-muted-foreground mb-4">
-        {tracks.length} tracks in library
+      {/* Sorting Controls */}
+      <div className="flex items-center gap-2 pb-2 border-b">
+        <div className="flex items-center gap-1">
+          <Button
+            variant={sortBy === 'title' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setSortBy('title')}
+            className="h-8 text-xs"
+          >
+            Title
+          </Button>
+          <Button
+            variant={sortBy === 'artist' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setSortBy('artist')}
+            className="h-8 text-xs"
+          >
+            Artist
+          </Button>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          className="h-8 w-8 p-0"
+          title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+        >
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+        <div className="ml-auto text-xs text-muted-foreground">
+          {tracks.length} tracks
+        </div>
       </div>
+
+      {/* Track List */}
       {tracks.map((track) => (
         <TrackCard
           key={track.id}
