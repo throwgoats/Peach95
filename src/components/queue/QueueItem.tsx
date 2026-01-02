@@ -71,6 +71,8 @@ export function QueueItem({ queueItem, index, position, previousTrack }: QueueIt
         ref={setNodeRef}
         style={style}
         className={`relative overflow-hidden transition-all hover:shadow-md ${
+          isCurrentlyPlaying ? 'shadow-lg border-primary/50' : ''
+        } ${
           hasBacksellReference ? 'border-l-2 border-l-blue-500/30 dark:border-l-blue-400/30' : ''
         }`}
       >
