@@ -103,6 +103,13 @@ export function QueueItem({ queueItem, index, position, previousTrack }: QueueIt
               isPlaying={isCurrentlyPlaying}
             />
 
+            {/* Category Badge */}
+            <div className="flex-shrink-0">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded text-xs font-bold bg-muted text-muted-foreground">
+                {track.rotation.category}
+              </span>
+            </div>
+
             {/* Track Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
