@@ -3,17 +3,17 @@
   "filePath": "tracks/Ain't Nothin' Goin' On But the Rent.mp3",
   "title": "Nothin' Goin' On But the Rent",
   "artist": "Jake Marlowe",
-  "duration": 223,
+  "duration": 155,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
+    "intro": 12,
+    "outro": 20,
     "coldOpen": false
   },
   "rotation": {
     "category": "A",
-    "energy": 1,
+    "energy": 3,
     "playCount": 0,
     "lastPlayed": null,
     "addedDate": "2026-01-01T19:21:15.051Z"

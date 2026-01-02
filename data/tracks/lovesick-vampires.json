@@ -3,17 +3,17 @@
   "filePath": "tracks/Lovesick Vampires.mp3",
   "title": "Lovesick Vampires",
   "artist": "Renfield",
-  "duration": 219,
+  "duration": 153,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
+    "intro": 14,
+    "outro": 0,
     "coldOpen": false
   },
   "rotation": {
-    "category": "A",
-    "energy": 4,
+    "category": "B",
+    "energy": 3,
     "playCount": 0,
     "lastPlayed": null,
     "addedDate": "2026-01-01T19:21:15.051Z"

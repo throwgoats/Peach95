@@ -7,8 +7,8 @@
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
+    "intro": 19,
+    "outro": 10,
     "coldOpen": false
   },
   "rotation": {

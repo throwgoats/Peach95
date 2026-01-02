@@ -30,7 +30,7 @@ A modern, web-based radio automation application built with Next.js, featuring a
 - **Audio Engine:** Howler.js
 - **State Management:** Zustand
 - **UI Components:** shadcn/ui + Tailwind CSS
-- **Data Storage:** JSON files (11 tracks included)
+- **Data Storage:** JSON files
 - **TypeScript:** Full type safety with Zod validation
 
 ## Getting Started

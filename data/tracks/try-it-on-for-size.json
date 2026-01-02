@@ -3,12 +3,12 @@
   "filePath": "tracks/Try It On for Size.mp3",
   "title": "Try It On for Size",
   "artist": "Rob Steele",
-  "duration": 176,
+  "duration": 175,
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
+    "intro": 25,
+    "outro": 0,
     "coldOpen": false
   },
   "rotation": {

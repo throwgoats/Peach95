@@ -7,13 +7,13 @@
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
+    "intro": 11,
+    "outro": 0,
     "coldOpen": false
   },
   "rotation": {
     "category": "A",
-    "energy": 5,
+    "energy": 4,
     "playCount": 0,
     "lastPlayed": null,
     "addedDate": "2025-12-30T03:43:53.277Z"

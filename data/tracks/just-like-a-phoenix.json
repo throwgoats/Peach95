@@ -7,12 +7,12 @@
   "bitrate": 128,
   "sampleRate": 44100,
   "timing": {
-    "intro": 8,
-    "outro": 12,
-    "coldOpen": false
+    "intro": 0,
+    "outro": 8,
+    "coldOpen": true
   },
   "rotation": {
-    "category": "A",
+    "category": "B",
     "energy": 4,
     "playCount": 0,
     "lastPlayed": null,
