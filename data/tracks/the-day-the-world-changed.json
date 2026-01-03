@@ -1,0 +1,25 @@
+{
+  "id": "the-day-the-world-changed",
+  "filePath": "tracks/The Day the World Changed.mp3",
+  "title": "The Day the World Changed",
+  "artist": "Unarmed Gunmen",
+  "duration": 199,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 30,
+    "outro": 20,
+    "coldOpen": false
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 4,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-03T23:48:02.976Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-03T23:48:02.976Z",
+  "updatedAt": "2026-01-03T23:48:02.976Z",
+  "version": 1
+}
