@@ -25,13 +25,14 @@ export async function POST(request: NextRequest) {
     // Select break type if not provided
     const selectedBreakType = breakType || selectRandomBreakType();
 
-    // Check if AI is enabled (fallback to mock if no API keys)
-    const useAI = process.env.ANTHROPIC_API_KEY && process.env.ELEVENLABS_API_KEY;
+    // Check which AI services are available
+    const hasClaudeKey = !!process.env.ANTHROPIC_API_KEY;
+    const hasElevenLabsKey = !!process.env.ELEVENLABS_API_KEY;
 
     let voSegment: VOSegment;
 
-    if (useAI) {
-      // Generate with AI
+    if (hasClaudeKey || hasElevenLabsKey) {
+      // Generate with whatever AI services are available
       voSegment = await generateAIVOSegment(
         currentTrack,
         previousTrack,
@@ -40,7 +41,9 @@ export async function POST(request: NextRequest) {
         timeOfDay,
         selectedBreakType,
         energyLevel,
-        context
+        context,
+        hasClaudeKey,
+        hasElevenLabsKey
       );
     } else {
       // Fallback to mock generation
@@ -111,42 +114,82 @@ async function generateAIVOSegment(
   timeOfDay: 'morning' | 'afternoon' | 'evening' | 'overnight',
   breakType: BreakType,
   energyLevel: number,
-  context?: VOGenerationRequest['context']
+  context: VOGenerationRequest['context'] | undefined,
+  hasClaudeKey: boolean,
+  hasElevenLabsKey: boolean
 ): Promise<VOSegment> {
-  // Step 1: Generate script with Claude
-  const script = await generateVOScript({
-    currentTrack: {
-      title: currentTrack.title,
-      artist: currentTrack.artist
-    },
-    previousTrack: previousTrack ? {
-      title: previousTrack.title,
-      artist: previousTrack.artist
-    } : undefined,
-    nextTrack: nextTrack ? {
-      title: nextTrack.title,
-      artist: nextTrack.artist
-    } : undefined,
-    persona,
-    timeOfDay,
-    breakType,
-    energyLevel,
-    context
-  });
+  let script: string;
+  let audioDataUrl: string | undefined;
+  let duration: number;
 
-  // Step 2: Generate audio with ElevenLabs
-  const voiceId = getVoiceIdForPersona(persona);
-  const { audioDataUrl } = await generateTTS({
-    text: script,
-    voiceId
-  });
+  // Step 1: Generate script with Claude (or use mock if no key)
+  if (hasClaudeKey) {
+    try {
+      script = await generateVOScript({
+        currentTrack: {
+          title: currentTrack.title,
+          artist: currentTrack.artist
+        },
+        previousTrack: previousTrack ? {
+          title: previousTrack.title,
+          artist: previousTrack.artist
+        } : undefined,
+        nextTrack: nextTrack ? {
+          title: nextTrack.title,
+          artist: nextTrack.artist
+        } : undefined,
+        persona,
+        timeOfDay,
+        breakType,
+        energyLevel,
+        context
+      });
+    } catch (error) {
+      console.error('Claude API error, falling back to mock script:', error);
+      script = generateMockScript(previousTrack, nextTrack);
+    }
+  } else {
+    console.warn('Claude API key not configured, using mock script generation');
+    script = generateMockScript(previousTrack, nextTrack);
+  }
+
+  // Step 2: Generate audio with ElevenLabs (or use mock if no key)
+  if (hasElevenLabsKey) {
+    try {
+      const voiceId = getVoiceIdForPersona(persona);
+      const result = await generateTTS({
+        text: script,
+        voiceId
+      });
+      audioDataUrl = result.audioDataUrl;
+    } catch (error) {
+      console.error('ElevenLabs API error, falling back to mock audio:', error);
+      audioDataUrl = undefined; // Will use mock file below
+    }
+  } else {
+    console.warn('ElevenLabs API key not configured, using mock audio files');
+    audioDataUrl = undefined; // Will use mock file below
+  }
 
   // Step 3: Estimate duration
-  const duration = estimateScriptDuration(script);
+  duration = estimateScriptDuration(script);
+
+  // If no audio was generated, use mock audio file
+  if (!audioDataUrl) {
+    const introLength = currentTrack.timing.intro;
+    const mockDuration = Math.min(duration, introLength - 1);
+    const voFiles = [
+      '/media/vo/vo-short.mp3',   // ~3s
+      '/media/vo/vo-medium.mp3',  // ~5s
+      '/media/vo/vo-long.mp3'     // ~7s
+    ];
+    const fileIndex = mockDuration <= 3 ? 0 : mockDuration <= 5 ? 1 : 2;
+    audioDataUrl = voFiles[fileIndex];
+  }
 
   return {
     id: `vo-${Date.now()}`,
-    fileUrl: audioDataUrl, // Base64 data URL for immediate use
+    fileUrl: audioDataUrl,
     duration,
     startOffset: 0, // Will be calculated by caller
     transcript: script,
@@ -154,6 +197,25 @@ async function generateAIVOSegment(
     persona,
     breakType
   };
+}
+
+/**
+ * Generate mock script for fallback
+ */
+function generateMockScript(
+  previousTrack: VOGenerationRequest['previousTrack'] | undefined,
+  nextTrack: VOGenerationRequest['nextTrack'] | undefined
+): string {
+  const opener = "Today's Hits and Yesterday's Favorites, Peach 95";
+  const closer = "Peach 95";
+
+  if (previousTrack) {
+    return `${opener}. That was ${previousTrack.artist} with ${previousTrack.title}. ${closer}.`;
+  } else if (nextTrack) {
+    return `${opener}. Coming up, ${nextTrack.title} by ${nextTrack.artist}. ${closer}.`;
+  } else {
+    return `${opener}. Great music coming up. ${closer}.`;
+  }
 }
 
 /**
