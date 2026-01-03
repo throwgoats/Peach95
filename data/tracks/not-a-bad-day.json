@@ -1,0 +1,25 @@
+{
+  "id": "not-a-bad-day",
+  "filePath": "tracks/Not A Bad Day.mp3",
+  "title": "Not A Bad Day to Be Great",
+  "artist": "Tennlo",
+  "duration": 189,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 0,
+    "outro": 12,
+    "coldOpen": true
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 2,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-03T01:58:00.456Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-03T01:58:00.456Z",
+  "updatedAt": "2026-01-03T01:58:00.456Z",
+  "version": 1
+}

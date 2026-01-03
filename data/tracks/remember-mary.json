@@ -1,0 +1,25 @@
+{
+  "id": "remember-mary",
+  "filePath": "tracks/Remember Mary.mp3",
+  "title": "Remember Mary",
+  "artist": "Lurid Cavaliers",
+  "duration": 342,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 22,
+    "outro": 12,
+    "coldOpen": false
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 1,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-03T13:26:29.294Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-03T13:26:29.294Z",
+  "updatedAt": "2026-01-03T13:26:29.294Z",
+  "version": 1
+}

@@ -1,0 +1,25 @@
+{
+  "id": "they-come-runnin",
+  "filePath": "tracks/They Come Runnin'.mp3",
+  "title": "They Come Runnin'",
+  "artist": "Phil Faders",
+  "duration": 227,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 15,
+    "outro": 9,
+    "coldOpen": false
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 4,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-03T14:22:15.161Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-03T14:22:15.161Z",
+  "updatedAt": "2026-01-03T14:22:15.161Z",
+  "version": 1
+}
