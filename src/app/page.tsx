@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TrackList } from '@/components/library/TrackList';
 import { TrackInfoPanel } from '@/components/library/TrackInfoPanel';
 import { QueuePanel } from '@/components/queue/QueuePanel';
 import { DJSelector } from '@/components/talent/DJSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { DndProvider } from '@/components/providers/DndProvider';
+import { useLibraryStore } from '@/stores/libraryStore';
+import { getPlayerInstance } from '@/lib/audio/player';
+import { RotateCw, Loader2 } from 'lucide-react';
 import type { TrackMetadata } from '@/types/track';
 
 export default function Home() {
@@ -16,6 +20,18 @@ export default function Home() {
 
   // Track selection state
   const [selectedTrack, setSelectedTrack] = useState<TrackMetadata | null>(null);
+
+  // Library state for refresh button
+  const loading = useLibraryStore((state) => state.loading);
+  const loadTracks = useLibraryStore((state) => state.loadTracks);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      const player = getPlayerInstance();
+      player.dispose();
+    };
+  }, []);
 
   return (
     <DndProvider>
@@ -36,7 +52,23 @@ export default function Home() {
             <div className="space-y-6 min-h-0 flex flex-col">
               <Card className="flex flex-col overflow-hidden">
                 <CardHeader>
-                  <CardTitle>Track Library</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Track Library</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => loadTracks()}
+                      disabled={loading}
+                      className="h-8 w-8 p-0"
+                      title="Refresh library"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RotateCw className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="flex-1 overflow-y-auto">
                   <TrackList

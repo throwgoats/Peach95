@@ -86,6 +86,11 @@ export const usePlayerStore = create<PlayerStore>()(
         // Remove the finished track from queue
         const { queueItems } = get();
         if (queueItems.length > 0) {
+          // Clear VO data URL from finished track to help GC
+          if (queueItems[0]?.voSegment) {
+            queueItems[0].voSegment.fileUrl = '';
+          }
+
           const newQueueItems = queueItems.slice(1);
           newQueueItems.forEach((item, idx) => {
             item.queuePosition = idx;
@@ -235,6 +240,13 @@ export const usePlayerStore = create<PlayerStore>()(
 
         removeFromQueue: (index: number) => {
           const { queueItems, queueItemStates } = get();
+
+          // Clear VO data URL from removed item to help GC
+          const removedItem = queueItems[index];
+          if (removedItem?.voSegment) {
+            removedItem.voSegment.fileUrl = '';
+          }
+
           const newQueueItems = queueItems.filter((_, i) => i !== index);
 
           // Update positions
@@ -280,6 +292,15 @@ export const usePlayerStore = create<PlayerStore>()(
         },
 
         clearQueue: () => {
+          const { queueItems } = get();
+
+          // Clear all VO data URLs to help GC
+          queueItems.forEach(item => {
+            if (item.voSegment) {
+              item.voSegment.fileUrl = '';
+            }
+          });
+
           set({
             queueItems: [],
             queue: [],
