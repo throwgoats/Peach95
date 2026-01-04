@@ -1,0 +1,25 @@
+{
+  "id": "who-wants-to-live-forever",
+  "filePath": "tracks/Who Wants to Live Forever.mp3",
+  "title": "Who Wants to Live Forever",
+  "artist": "Icecastle",
+  "duration": 189,
+  "bitrate": 128,
+  "sampleRate": 44100,
+  "timing": {
+    "intro": 17,
+    "outro": 9,
+    "coldOpen": false
+  },
+  "rotation": {
+    "category": "B",
+    "energy": 2,
+    "playCount": 0,
+    "lastPlayed": null,
+    "addedDate": "2026-01-04T02:54:14.655Z"
+  },
+  "explicit": false,
+  "createdAt": "2026-01-04T02:54:14.655Z",
+  "updatedAt": "2026-01-04T02:54:14.655Z",
+  "version": 1
+}
