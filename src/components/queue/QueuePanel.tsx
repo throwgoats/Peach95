@@ -91,7 +91,7 @@ export function QueuePanel() {
   }
 
   return (
-    <Card ref={setNodeRef} className={`flex flex-col ${isOver ? 'ring-2 ring-primary bg-accent/50' : ''}`}>
+    <Card ref={setNodeRef} className={`flex flex-col overflow-hidden ${isOver ? 'ring-2 ring-primary bg-accent/50' : ''}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -112,7 +112,7 @@ export function QueuePanel() {
           Total: {formatDuration(totalDuration)}
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+      <CardContent className="flex-1 overflow-y-auto">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
